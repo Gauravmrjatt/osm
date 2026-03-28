@@ -1,8 +1,8 @@
 -- Database Schema for Payou Offers Platform
 
 -- Create database
-CREATE DATABASE IF NOT EXISTS payou_db;
-USE payou_db;
+-- CREATE DATABASE IF NOT EXISTS payou_db;
+-- USE payou_db;
 
 -- Offers table
 CREATE TABLE IF NOT EXISTS offers (
