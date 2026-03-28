@@ -1,9 +1,9 @@
 <?php
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'payou_db');
+define('DB_USER', 'osm_offers');
+define('DB_PASS', '6818215cb9f098');
+define('DB_NAME', 'osm_offers_db');
 
 // Admin password (change this)
 define('ADMIN_PASSWORD', 'payou123');
