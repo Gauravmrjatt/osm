@@ -1,4 +1,4 @@
-# Payou - Offers & Cashback Platform
+# OSM Offers - Offers & Cashback Platform
 
 A dynamic PHP/MySQL web application for managing and displaying offers and cashback deals.
 
@@ -31,7 +31,7 @@ mysql -u root -p < database.sql
 
 Edit `config.php` to update:
 - Database credentials (if different from default)
-- Admin password (default: `payou123`)
+- Admin password (default: `OSM Offers123`)
 
 ### 3. Run the Application
 
@@ -57,7 +57,7 @@ Open `http://localhost:8000` in your browser.
 
 Access the admin panel at: `http://localhost:8000/admin.php`
 
-- **Default Password:** `payou123`
+- **Default Password:** `OSM Offers123`
 
 ### Admin Features:
 - Add new offers with all details
