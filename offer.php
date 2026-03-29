@@ -440,7 +440,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   <div class="modal">
     <div class="modal-icon">🚀</div>
     <h3>You're leaving OSM</h3>
-    <p>You'll be redirected to <strong><?php echo htmlspecialchars($offer['brand_name']); ?></strong>. Make sure to log in so your <strong><?php echo $cashback_display; ?> cashback</strong> gets tracked!</p>
+    <p>You'll be redirected to <strong><?php echo htmlspecialchars($offer['brand_name']); ?></strong>. Make sure to complete all the steps so your <strong><?php echo $cashback_display; ?> cashback</strong> gets tracked!</p>
     <p style="color: #fbbf24; font-size: 0.75rem; margin-top: 10px; padding: 10px; background: rgba(251, 191, 36, 0.1); border-radius: 8px;">⚠️ Please read all steps and Terms & Conditions carefully before proceeding. Cashback will only be credited if all instructions are followed correctly.</p>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeModal()">Cancel</button>
