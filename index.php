@@ -15,7 +15,7 @@ while ($row = $cat_result->fetch_assoc()) {
 
 // Get active banners
 $banners = [];
-$banner_result = $conn->query("SELECT * FROM banners WHERE status = 'active' ORDER BY sort_order");
+$banner_result = $conn->query("SELECT * FROM banners ORDER BY sort_order");
 while ($row = $banner_result->fetch_assoc()) {
   $banners[] = $row;
 }
