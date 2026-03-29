@@ -740,12 +740,12 @@ $conn->close();
     (function() {
       const scroll = document.getElementById('bannersScroll');
       if (!scroll) return;
-      let current = 0;
       const banners = scroll.querySelectorAll('a');
       if (banners.length <= 1) return;
+      let current = 0;
       setInterval(() => {
         current = (current + 1) % banners.length;
-        banners[current].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+        scroll.scrollTo({ left: banners[current].offsetLeft - 16, top: 0, behavior: 'smooth' });
       }, 3000);
     })();
   </script>
