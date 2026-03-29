@@ -52,6 +52,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->query("DELETE FROM offers WHERE id = $id");
         $message = 'Offer and associated files deleted successfully.';
         $message_type = 'success';
+        header('Location: admin.php?tab=offers');
+        exit;
     }
     
     // Save offer (add or edit)
@@ -150,6 +152,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $message_type = 'success';
+        header('Location: admin.php?tab=offers');
+        exit;
     }
     
     $conn->close();
@@ -162,6 +166,7 @@ $cat_result = $conn->query("SELECT * FROM categories ORDER BY sort_order");
 while ($row = $cat_result->fetch_assoc()) {
     $categories[] = $row;
 }
+$default_category = !empty($categories) ? $categories[0]['name'] : 'Bank Accounts';
 
 // Get all offers
 $offers_result = $conn->query("SELECT * FROM offers ORDER BY created_at DESC");
@@ -195,7 +200,7 @@ if (isset($_GET['edit']) && $is_logged_in) {
             'description' => '',
             'brand_name' => '',
             'brand_emoji' => '🎁',
-            'category' => 'General',
+            'category' => $default_category,
             'min_order_amount' => 0,
             'max_cashback' => 0,
             'cashback_rate' => 0,
@@ -213,6 +218,59 @@ if (isset($_GET['edit']) && $is_logged_in) {
             'terms' => []
         ];
     }
+}
+
+// Category management
+$active_tab = $_GET['tab'] ?? 'offers';
+$edit_category = null;
+
+// Delete category
+if ($is_logged_in && isset($_POST['delete_category'])) {
+    $cat_id = intval($_POST['category_id']);
+    $conn->query("DELETE FROM categories WHERE id = $cat_id");
+    $message = 'Category deleted successfully.';
+    $message_type = 'success';
+    header('Location: admin.php?tab=categories');
+    exit;
+}
+
+// Add/Edit category
+if ($is_logged_in && isset($_POST['save_category'])) {
+    $cat_id = intval($_POST['category_id'] ?? 0);
+    $cat_name = trim($_POST['category_name']);
+    $cat_emoji = $_POST['category_emoji'];
+    $cat_order = intval($_POST['category_order']);
+    
+    if (!empty($cat_name)) {
+        if ($cat_id > 0) {
+            $stmt = $conn->prepare("UPDATE categories SET name=?, emoji=?, sort_order=? WHERE id=?");
+            $stmt->bind_param("ssii", $cat_name, $cat_emoji, $cat_order, $cat_id);
+            $stmt->execute();
+            $message = 'Category updated successfully.';
+        } else {
+            $stmt = $conn->prepare("INSERT INTO categories (name, emoji, sort_order) VALUES (?, ?, ?)");
+            $stmt->bind_param("ssi", $cat_name, $cat_emoji, $cat_order);
+            $stmt->execute();
+            $message = 'Category added successfully.';
+        }
+        $message_type = 'success';
+        header('Location: admin.php?tab=categories');
+        exit;
+    }
+}
+
+// Get category for edit
+if ($is_logged_in && isset($_GET['edit_category'])) {
+    $edit_cat_id = intval($_GET['edit_category']);
+    $cat_result = $conn->query("SELECT * FROM categories WHERE id = $edit_cat_id");
+    $edit_category = $cat_result->fetch_assoc();
+}
+
+// Refresh categories list
+$categories = [];
+$cat_result = $conn->query("SELECT * FROM categories ORDER BY sort_order");
+while ($row = $cat_result->fetch_assoc()) {
+    $categories[] = $row;
 }
 
 $conn->close();
@@ -259,6 +317,16 @@ $conn->close();
   .nav-links .btn-logout { background: #fee2e2; color: var(--red); }
 
   .container { max-width: 1200px; margin: 0 auto; }
+  
+  .admin-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+  .admin-tabs .tab-btn {
+    padding: 10px 20px; border: none; background: #fff; color: var(--text-sub);
+    font-family: 'Mulish', sans-serif; font-weight: 600; font-size: 0.9rem;
+    border-radius: 10px; cursor: pointer; transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+  }
+  .admin-tabs .tab-btn:hover { background: var(--primary-light); color: var(--primary); }
+  .admin-tabs .tab-btn.active { background: var(--primary); color: #fff; }
   
   .card {
     background: #fff; border-radius: var(--radius); padding: 24px;
@@ -364,12 +432,80 @@ $conn->close();
   <div class="message <?php echo $message_type; ?>"><?php echo $message; ?></div>
   <?php endif; ?>
 
-  <?php if ($edit_offer || $is_new_offer): ?>
+  <div class="admin-tabs">
+    <a href="admin.php?tab=offers" class="tab-btn <?php echo $active_tab === 'offers' ? 'active' : ''; ?>">Offers</a>
+    <a href="admin.php?tab=categories" class="tab-btn <?php echo $active_tab === 'categories' ? 'active' : ''; ?>">Categories</a>
+  </div>
+
+  <?php if ($active_tab === 'categories'): ?>
+  
+  <!-- Categories Management -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 class="card-title" style="margin: 0;">Manage Categories</h2>
+      <a href="?tab=categories&edit_category=0" class="btn btn-primary btn-sm">+ Add Category</a>
+    </div>
+    
+    <?php if ($edit_category !== null || (isset($_GET['edit_category']) && $_GET['edit_category'] == 0)): ?>
+    <!-- Add/Edit Category Form -->
+    <form method="post" style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+      <input type="hidden" name="category_id" value="<?php echo $edit_category['id'] ?? 0; ?>">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+        <div class="form-group" style="margin: 0;">
+          <label>Category Name</label>
+          <input type="text" name="category_name" value="<?php echo htmlspecialchars($edit_category['name'] ?? ''); ?>" required>
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label>Emoji</label>
+          <input type="text" name="category_emoji" value="<?php echo htmlspecialchars($edit_category['emoji'] ?? '📁'); ?>" maxlength="10">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label>Sort Order</label>
+          <input type="number" name="category_order" value="<?php echo $edit_category['sort_order'] ?? count($categories) + 1; ?>" min="1">
+        </div>
+        <button type="submit" name="save_category" class="btn btn-primary">Save</button>
+      </div>
+      <a href="admin.php?tab=categories" class="btn btn-secondary btn-sm" style="margin-top: 12px;">Cancel</a>
+    </form>
+    <?php endif; ?>
+    
+    <table class="offers-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Emoji</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($categories as $cat): ?>
+        <tr>
+          <td><?php echo $cat['sort_order']; ?></td>
+          <td style="font-size: 1.5rem;"><?php echo htmlspecialchars($cat['emoji']); ?></td>
+          <td><strong><?php echo htmlspecialchars($cat['name']); ?></strong></td>
+          <td>
+            <div class="action-btns">
+              <a href="?tab=categories&edit_category=<?php echo $cat['id']; ?>" class="btn btn-secondary btn-sm">Edit</a>
+              <form method="post" style="display:inline;" onsubmit="return confirm('Delete this category?');">
+                <input type="hidden" name="category_id" value="<?php echo $cat['id']; ?>">
+                <input type="hidden" name="tab" value="categories">
+                <button type="submit" name="delete_category" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+
+  <?php elseif ($edit_offer || $is_new_offer): ?>
   <!-- Edit/Add Offer Form -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 class="card-title" style="margin: 0;"><?php echo ($edit_offer && $edit_offer['id'] > 0) ? 'Edit Offer' : 'Add New Offer'; ?></h2>
-      <a href="admin.php" class="btn btn-secondary btn-sm">Cancel</a>
+      <a href="admin.php?tab=offers" class="btn btn-secondary btn-sm">Cancel</a>
     </div>
     
     <form method="post" enctype="multipart/form-data">
@@ -596,13 +732,13 @@ $conn->close();
     }
   </script>
 
-  <?php else: ?>
+  <?php elseif ($active_tab === 'offers' || ($active_tab === '')): ?>
   
   <!-- Offers List -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
       <h2 class="card-title" style="margin: 0;">All Offers</h2>
-      <a href="?edit=0" class="btn btn-primary btn-sm">+ Add New Offer</a>
+      <a href="?tab=offers&edit=0" class="btn btn-primary btn-sm">+ Add New Offer</a>
     </div>
     
     <table class="offers-table">
@@ -634,9 +770,10 @@ $conn->close();
           <td><span class="status-badge <?php echo $status_class; ?>"><?php echo ucfirst($offer['status']); ?></span></td>
           <td>
             <div class="action-btns">
-              <a href="?edit=<?php echo $offer['id']; ?>" class="btn btn-secondary btn-sm">Edit</a>
+              <a href="?tab=offers&edit=<?php echo $offer['id']; ?>" class="btn btn-secondary btn-sm">Edit</a>
               <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this offer?');">
                 <input type="hidden" name="offer_id" value="<?php echo $offer['id']; ?>">
+                <input type="hidden" name="tab" value="offers">
                 <button type="submit" name="delete_offer" class="btn btn-danger btn-sm">Delete</button>
               </form>
             </div>

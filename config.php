@@ -59,15 +59,13 @@ function isExpired($date) {
 // Get category emoji
 function getCategoryEmoji($category) {
     $emojis = [
-        'Food' => '🍕',
-        'Health' => '💊',
-        'Fashion' => '👟',
-        'Music' => '🎵',
-        'Travel' => '✈️',
-        'Entertainment' => '🎬',
-        'Shopping' => '🛒',
+        'Bank Accounts' => '🏦',
+        'Demat Accounts' => '📊',
         'Recharge' => '📱',
-        'General' => '🎁'
+        'Upi' => '💳',
+        'Investment' => '📈',
+        'Shopping' => '🛒',
+        'Entertainment' => '🎬'
     ];
     return $emojis[$category] ?? '🎁';
 }

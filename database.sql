@@ -75,14 +75,13 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- Insert default categories
 INSERT INTO categories (name, emoji, sort_order) VALUES 
-('Food', '🍕', 1),
-('Health', '💊', 2),
-('Fashion', '👟', 3),
-('Music', '🎵', 4),
-('Travel', '✈️', 5),
-('Entertainment', '🎬', 6),
-('Shopping', '🛒', 7),
-('Recharge', '📱', 8);
+('Bank Accounts', '🏦', 1),
+('Demat Accounts', '📊', 2),
+('Recharge', '📱', 3),
+('Upi', '💳', 4),
+('Investment', '📈', 5),
+('Shopping', '🛒', 6),
+('Entertainment', '🎬', 7);
 
 -- Insert sample offers
 INSERT INTO offers (title, description, brand_name, brand_emoji, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, claimed_count, rating, is_featured, is_verified, is_popular) VALUES

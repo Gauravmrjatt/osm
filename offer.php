@@ -54,6 +54,7 @@ $conn->close();
 $is_expired = isExpired($offer['expiry_date']);
 $days_left = getDaysRemaining($offer['expiry_date']);
 $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($offer['max_cashback']) : $offer['cashback_rate'] . '%';
+$totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 1 : 1;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -131,6 +132,8 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
   .carousel-wrap { position:relative; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md); background:#000; }
   .carousel-wrap video { width: 100%; height: 280px; object-fit: contain; background: #000; }
+  .carousel-wrap video::-webkit-media-controls { display: flex !important; }
+  .carousel-wrap video::-webkit-media-controls-enclosure { display: flex !important; }
   @media(min-width:768px) { .carousel-wrap video { height: 350px; } }
   .carousel-track { display:flex; transition:transform 0.45s cubic-bezier(.4,0,.2,1); }
   .carousel-slide {
@@ -646,20 +649,13 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 </div>
 
 <script>
-  let cur = 0, total = <?php echo $totalSlides; ?>;
-  const track = document.getElementById('track');
-  const dots = document.querySelectorAll('.c-dot');
-
-  function goTo(n) {
-    cur = (n + total) % total;
-    track.style.transform = `translateX(-${cur * 100}%)`;
-    dots.forEach((d, i) => d.classList.toggle('active', i === cur));
-  }
-  function slide(dir) { goTo(cur + dir); }
-
-  let auto = setInterval(() => slide(1), 3500);
-  track.parentElement.addEventListener('mouseenter', () => clearInterval(auto));
-  track.parentElement.addEventListener('mouseleave', () => { auto = setInterval(() => slide(1), 3500); });
+  document.addEventListener('DOMContentLoaded', function() {
+    const video = document.querySelector('.carousel-wrap video');
+    if (video) {
+      video.controls = true;
+      video.preload = 'metadata';
+    }
+  });
 
   let redirectUrl = '';
 
