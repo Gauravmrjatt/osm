@@ -1,5 +1,8 @@
 <?php
 require_once 'config.php';
+session_start();
+
+$is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 
 $conn = getDB();
 
@@ -515,16 +518,12 @@ $conn->close();
 <nav class="navbar">
   <div class="logo">Pay<span>ou</span></div>
   <div class="nav-icons">
-    <a href="admin.php" class="admin-link">Admin</a>
-    <div class="nav-icon">
+    <?php if ($is_admin): ?>
+    <a href="admin.php" class="admin-link"><div class="nav-icon">
       <i class="hgi-stroke hgi-user-account"></i>
     </div>
-    <div class="nav-icon">
-      <i class="hgi-stroke hgi-notification"></i>
-    </div>
-    <div class="nav-icon">
-      <i class="hgi-stroke hgi-time"></i>
-    </div>
+    </a>
+    <?php endif; ?>
   </div>
 </nav>
 
@@ -665,11 +664,11 @@ $conn->close();
   </div>
 </div>
 
-<div class="fab">
+<!-- <div class="fab">
   <i class="hgi-stroke hgi-grid"></i>
-</div>
+</div> -->
 
-<nav class="bottom-nav">
+<!-- <nav class="bottom-nav">
   <a href="index.php" class="nav-item active">
     <i class="hgi-stroke hgi-home"></i>
     <span>Home</span>
@@ -686,7 +685,7 @@ $conn->close();
     <i class="hgi-stroke hgi-calendar-02"></i>
     <span>Events</span>
   </div>
-</nav>
+</nav> -->
 
 <script>
   function handleResize() {

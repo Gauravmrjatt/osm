@@ -1,5 +1,8 @@
 <?php
 require_once 'config.php';
+session_start();
+
+$is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 
 $conn = getDB();
 $offer_id = $_GET['id'] ?? 0;
@@ -360,9 +363,11 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   </a>
   <div class="logo">Pay<span>ou</span></div>
   <div style="width:74px;display:flex;justify-content:flex-end;">
+    <?php if ($is_admin): ?>
     <a href="admin.php?edit=<?php echo $offer['id']; ?>" style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);cursor:pointer;text-decoration:none;">
       <i class="hgi-stroke hgi-edit-01"></i>
     </a>
+    <?php endif; ?>
   </div>
 </nav>
 
