@@ -115,7 +115,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($id > 0) {
             // Update existing
             $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, video_file=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, min_amount=?, max_amount=?, expiry_date=?, promo_code=?, redirect_url=?, link2=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=?, payout_type=? WHERE id=?");
-            $stmt->bind_param("sssssssssssdddddddiiiss", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type, $id);
+            $stmt->bind_param("ssssssssssssssddddddiiiii", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type, $id);
             $stmt->execute();
             
             // Delete old steps and terms
@@ -126,7 +126,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Insert new
             $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, min_amount, max_amount, expiry_date, promo_code, redirect_url, link2, claimed_count, rating, is_featured, is_verified, is_popular, status, payout_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssssdddsddssssidiiiss", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type);
+            $stmt->bind_param("ssssssssssssssddddddiiii", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type);
             $stmt->execute();
             $id = $conn->insert_id;
             
