@@ -269,7 +269,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   <!-- Media / Video or Logo -->
   <?php if (!empty($offer['video_file'])): ?>
   <div class="card" style="padding:0;overflow:hidden;">
-    <video controls style="width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:#000;">
+    <video controls style="width:100%;height:auto;background:#000;">
       <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
       Your browser does not support the video tag.
     </video>
