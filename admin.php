@@ -197,6 +197,7 @@ $conn->close();
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>OSM – Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css"/>
 <style>
   :root {
     --primary: #4f46e5;
@@ -213,6 +214,11 @@ $conn->close();
     --radius: 14px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .hi { display: inline-block; vertical-align: middle; }
+  .hi-lg { font-size: 24px; }
+  .hi-md { font-size: 20px; }
+  .hi-sm { font-size: 16px; }
+  .hi-xs { font-size: 14px; }
   body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
 
   .navbar {
