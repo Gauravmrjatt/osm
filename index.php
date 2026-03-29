@@ -565,10 +565,10 @@ $conn->close();
     <!-- Banners Section -->
     <?php if (!empty($banners)): ?>
     <div class="banners-section" style="margin-bottom: 20px;">
-      <div class="banners-scroll" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px;">
+      <div class="banners-scroll" id="bannersScroll" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; scroll-snap-type: x mandatory;">
         <?php foreach ($banners as $banner): ?>
           <?php if (!empty($banner['image_url'])): ?>
-            <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 calc(100vw - 32px); display: block; width: calc(100vw - 32px); max-width: 400px;">
+            <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 calc(100vw - 32px); display: block; width: calc(100vw - 32px); max-width: 400px; scroll-snap-align: start;">
               <img src="/uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="width: 100%; height: 100px; border-radius: 14px; object-fit: cover;">
             </a>
           <?php endif; ?>
@@ -735,6 +735,19 @@ $conn->close();
         this.classList.add('active');
       });
     });
+
+    // Auto-scroll banners
+    (function() {
+      const scroll = document.getElementById('bannersScroll');
+      if (!scroll) return;
+      let current = 0;
+      const banners = scroll.querySelectorAll('a');
+      if (banners.length <= 1) return;
+      setInterval(() => {
+        current = (current + 1) % banners.length;
+        banners[current].scrollIntoView({ behavior: 'smooth', inline: 'start' });
+      }, 3000);
+    })();
   </script>
 
 </body>
