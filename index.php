@@ -638,8 +638,6 @@ $conn->close();
             <option value="expiry" <?php echo $sort_by === 'expiry' ? 'selected' : ''; ?>>Expiring Soon</option>
             <option value="cashback" <?php echo $sort_by === 'cashback' ? 'selected' : ''; ?>>Highest Cashback</option>
           </select>
-          <input type="number" name="min_amount" class="filter-input" placeholder="Min ₹" value="<?php echo $min_amount; ?>" min="0" onchange="this.form.submit()">
-          <input type="number" name="max_amount" class="filter-input" placeholder="Max ₹" value="<?php echo $max_amount < 10000 ? $max_amount : ''; ?>" min="0" onchange="this.form.submit()">
         </form>
 
       <div class="offers-list">
