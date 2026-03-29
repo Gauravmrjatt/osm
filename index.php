@@ -570,6 +570,52 @@ $conn->close();
       </div>
     </div>
 
+    <!-- Banners Section -->
+    <?php if (!empty($banners)): ?>
+    <div class="banners-section" style="margin-bottom: 20px;">
+      <div class="banners-scroll" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px;">
+        <?php foreach ($banners as $banner): ?>
+          <?php if (!empty($banner['image_url'])): ?>
+            <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 auto; display: block;">
+              <img src="<?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="height: 80px; border-radius: 14px; object-fit: cover;">
+            </a>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Featured Offers -->
+    <?php if (!empty($featured_offers)): ?>
+    <div class="featured-section" style="margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text);">Featured Offers</h3>
+        <span style="font-size: 0.65rem; color: var(--primary-light); font-weight: 600;">🔥 HOT</span>
+      </div>
+      <div class="featured-scroll" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px;">
+        <?php foreach ($featured_offers as $offer): ?>
+          <?php
+          $is_expired = isExpired($offer['expiry_date']);
+          $cashback_text = $offer['cashback_type'] === 'flat' ? '₹' . number_format($offer['max_cashback']) : $offer['cashback_rate'] . '%';
+          ?>
+          <a href="offer.php?id=<?php echo $offer['id']; ?>" style="flex: 0 0 160px; text-decoration: none; color: inherit;">
+            <div class="featured-card" style="background: var(--bg-card); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); height: 100%;">
+              <div class="offer-logo" style="width: 40px; height: 40px; margin-bottom: 10px;">
+                <?php if (!empty($offer['logo_image'])): ?>
+                  <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;">
+                <?php else: ?>
+                  <span style="font-size: 1.2rem;"><?php echo htmlspecialchars($offer['brand_emoji']); ?></span>
+                <?php endif; ?>
+              </div>
+              <div class="offer-title" style="font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo htmlspecialchars($offer['title']); ?></div>
+              <div class="offer-cashback" style="font-size: 0.65rem; font-weight: 700; background: rgba(0,210,106,0.12); color: var(--green); padding: 3px 8px; border-radius: 6px; display: inline-block;"><?php echo $cashback_text; ?> Cashback</div>
+            </div>
+          </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Category Tabs -->
     <div class="category-tabs">
       <a href="index.php" class="tab-pill <?php echo $category_filter === 'All' ? 'active' : ''; ?>">All</a>
