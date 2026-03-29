@@ -577,7 +577,7 @@ $conn->close();
         <?php foreach ($banners as $banner): ?>
           <?php if (!empty($banner['image_url'])): ?>
             <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 auto; display: block;">
-              <img src="<?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="height: 80px; border-radius: 14px; object-fit: cover;">
+              <img src="/uploads/?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="height: 80px; border-radius: 14px; object-fit: cover;">
             </a>
           <?php endif; ?>
         <?php endforeach; ?>
