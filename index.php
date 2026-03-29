@@ -473,67 +473,80 @@ $conn->close();
     }
 
     .offers-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
       margin-bottom: 40px;
     }
 
     .offer-card {
-      background: var(--card);
-      border-radius: var(--radius-sm);
-      padding: 16px 18px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 0;
       display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: var(--shadow-sm);
+      flex-direction: column;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
       cursor: pointer;
-      transition: all 0.25s;
-      border: 1.5px solid transparent;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.04);
       position: relative;
       overflow: hidden;
       text-decoration: none;
       color: inherit;
     }
 
-    .offer-card::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: var(--primary);
-      opacity: 0;
-      transition: opacity 0.2s;
-      border-radius: 3px 0 0 3px;
-    }
-
     .offer-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-      border-color: rgba(79, 70, 229, 0.15);
-    }
-
-    .offer-card:hover::before {
-      opacity: 1;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(79, 70, 229, 0.15);
     }
 
     .offer-card.expired {
-      opacity: 0.65;
+      opacity: 0.6;
+    }
+
+    .offer-image-wrap {
+      width: 100%;
+      height: 120px;
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    }
+
+    .offer-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .offer-cashback-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(79, 70, 229, 0.9);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 20px;
     }
 
     .offer-logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
       overflow: hidden;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      font-size: 1.3rem;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      bottom: -22px;
+      left: 16px;
+      border: 2px solid #fff;
     }
 
     .offer-logo img {
@@ -543,39 +556,41 @@ $conn->close();
     }
 
     .offer-body {
+      padding: 28px 16px 16px;
       flex: 1;
-      min-width: 0;
     }
 
     .offer-brand {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--text-sub);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #6366f1;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 3px;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
     }
 
     .offer-title {
-      font-size: 0.92rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: var(--text);
-      white-space: nowrap;
+      color: #1f2937;
+      line-height: 1.4;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 6px;
     }
 
     .offer-meta {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .offer-claimed {
-      font-size: 0.72rem;
-      color: var(--text-sub);
+      font-size: 0.7rem;
+      color: #9ca3af;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -587,7 +602,7 @@ $conn->close();
     }
 
     .offer-expiry {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
       display: flex;
       align-items: center;
@@ -595,38 +610,36 @@ $conn->close();
     }
 
     .offer-expiry.active {
-      color: var(--primary);
+      color: #6366f1;
     }
 
     .offer-expiry.expired-label {
-      color: var(--red);
+      color: #ef4444;
     }
 
     .offer-cashback {
-      font-size: 0.7rem;
-      font-weight: 700;
-      background: var(--green-light);
-      color: var(--green);
-      padding: 2px 8px;
-      border-radius: 8px;
+      display: none;
     }
 
     .offer-arrow {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      background: var(--primary-light);
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      color: var(--primary);
+      color: #fff;
       transition: all 0.2s;
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
     }
 
     .offer-card:hover .offer-arrow {
-      background: var(--primary);
-      color: #fff;
+      transform: scale(1.1);
     }
 
     .offer-arrow svg {
@@ -913,7 +926,7 @@ $conn->close();
       }
 
       .offers-list {
-        gap: 10px;
+        gap: 12px;
       }
 
       .expire-grid {
@@ -953,6 +966,15 @@ $conn->close();
 
       .promo-card {
         min-width: 260px;
+      }
+
+      .offers-list {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .offer-image-wrap {
+        height: 100px;
       }
 
       .expire-grid {
@@ -1348,7 +1370,13 @@ $conn->close();
                 $cashback_text = $offer['cashback_type'] === 'flat' ? '₹' . number_format($offer['max_cashback']) : $offer['cashback_rate'] . '%';
                 ?>
                 <a href="offer.php?id=<?php echo $offer['id']; ?>" class="offer-card <?php echo $is_expired ? 'expired' : ''; ?>">
-                  <div class="offer-logo" style="background:#fff5f5;overflow:hidden;">
+                  <div class="offer-image-wrap">
+                    <?php if (!empty($offer['image_url'])): ?>
+                      <img src="uploads/<?php echo htmlspecialchars($offer['image_url']); ?>">
+                    <?php endif; ?>
+                    <div class="offer-cashback-badge"><?php echo $cashback_text; ?> Cashback</div>
+                  </div>
+                  <div class="offer-logo" style="overflow:hidden;">
                     <?php if (!empty($offer['logo_image'])): ?>
                       <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
                     <?php else: ?>
@@ -1363,43 +1391,16 @@ $conn->close();
                         <i class="hgi-stroke hgi-users"></i>
                         <?php echo formatNumber($offer['claimed_count']); ?> claimed
                       </span>
-                      <span class="offer-cashback"><?php echo $cashback_text; ?> cashback</span>
                       <?php if (!$is_expired): ?>
-                        <span class="offer-expiry active">📅 Ends <?php echo formatDate($offer['expiry_date']); ?></span>
+                        <span class="offer-expiry active"><?php echo formatDate($offer['expiry_date']); ?></span>
                       <?php else: ?>
-                        <span class="offer-expiry expired-label">❌ Expired</span>
+                        <span class="offer-expiry expired-label">Expired</span>
                       <?php endif; ?>
                     </div>
                   </div>
-                  <button type="button" class="button">
-                    <span class="fold"></span>
-
-                    <div class="points_wrapper">
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                      <i class="point"></i>
-                    </div>
-
-                    <span class="inner"><svg
-                        class="icon"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5">
-                        <polyline
-                          points="13.18 1.37 13.18 9.64 21.45 9.64 10.82 22.63 10.82 14.36 2.55 14.36 13.18 1.37"></polyline>
-                      </svg>Claim <?php echo $cashback_text; ?> </span>
-                  </button>
+                  <div class="offer-arrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                  </div>
                 </a>
               <?php endforeach; ?>
 
