@@ -6,7 +6,7 @@ define('DB_PASS', '6818215cb9f098');
 define('DB_NAME', 'osm_offers_db');
 
 // Admin password (change this)
-define('ADMIN_PASSWORD', 'payou123');
+define('ADMIN_PASSWORD', 'Abduu@heh6262');
 
 // Upload directory
 define('UPLOAD_DIR', 'uploads/');
