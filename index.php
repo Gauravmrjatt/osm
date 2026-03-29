@@ -615,7 +615,7 @@ $conn->close();
     <div class="category-tabs">
       <a href="index" class="tab-pill <?php echo $category_filter === 'All' ? 'active' : ''; ?>">All</a>
       <?php foreach ($categories as $cat): ?>
-        <a href="index.php?category=<?php echo urlencode($cat['name']); ?>" class="tab-pill <?php echo $category_filter === $cat['name'] ? 'active' : ''; ?>">
+        <a href="?category=<?php echo urlencode($cat['name']); ?>" class="tab-pill <?php echo $category_filter === $cat['name'] ? 'active' : ''; ?>">
           <?php echo $cat['emoji'] . ' ' . htmlspecialchars($cat['name']); ?>
         </a>
       <?php endforeach; ?>
