@@ -291,7 +291,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   .mobile-fixed-cta {
     display: none;
     position: fixed;
-    bottom: 80px;
+    bottom: 20px;
     left: 12px;
     right: 12px;
     z-index: 150;
@@ -642,24 +642,6 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
 </button>
 <?php endif; ?>
 
-<nav class="bottom-nav">
-  <a href="index.php" class="nav-item">
-    <i class="hgi-stroke hgi-home"></i>
-    <span>Home</span>
-  </a>
-  <div class="nav-item">
-    <i class="hgi-stroke hgi-history"></i>
-    <span>History</span>
-  </a>
-  <a href="index.php" class="nav-item active">
-    <i class="hgi-stroke hgi-tag"></i>
-    <span>Offers</span>
-  </a>
-  <div class="nav-item">
-    <i class="hgi-stroke hgi-calendar-02"></i>
-    <span>Events</span>
-  </div>
-</nav>
 
 <div class="modal-overlay" id="modal">
   <div class="modal">
