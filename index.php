@@ -574,13 +574,13 @@ $conn->close();
       <div class="promo-scroll">
         <?php $colors = ['salmon', 'mint', 'lavender', 'blue']; ?>
         <?php foreach ($banners as $index => $banner): ?>
-        <div class="promo-card <?php echo $colors[$index % 4]; ?>">
+        <div class="promo-card <?php echo $colors[$index % 4]; ?>" style="padding:0;overflow:hidden;">
           <?php if (!empty($banner['link_url'])): ?>
-          <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank" style="display:contents;">
-            <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+          <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank" style="display:block;width:100%;height:100%;">
+            <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;">
           </a>
           <?php else: ?>
-          <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+          <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;">
           <?php endif; ?>
         </div>
         <?php endforeach; ?>
