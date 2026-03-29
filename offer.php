@@ -309,8 +309,25 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
     justify-content: center;
     gap: 8px;
   }
+  .mobile-cta-row {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 12px;
+    right: 12px;
+    z-index: 150;
+    gap: 10px;
+  }
+  .mobile-cta-row .mobile-fixed-cta {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    flex: 1;
+  }
   @media(max-width: 767px) {
-    .mobile-fixed-cta { display: flex; }
+    .mobile-cta-row { display: flex; }
+    .mobile-fixed-cta:not(.mobile-cta-row .mobile-fixed-cta) { display: flex; }
     .page { padding-bottom: 80px; }
     .desktop-cta { display: none !important; }
   }
@@ -645,21 +662,20 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
 </div>
 
 <?php if (!$is_expired && (!empty($offer['redirect_url']) || !empty($offer['link2']))): ?>
+<div class="mobile-cta-row">
 <?php if (!empty($offer['link2'])): ?>
-<button type="button" class="mobile-fixed-cta" style="bottom:140px;" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
+<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
   <i class="hgi-stroke hgi-arrow-up-right"></i>
   Link 2
 </button>
+<?php endif; ?>
+<?php if (!empty($offer['redirect_url'])): ?>
 <button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
   <i class="hgi-stroke hgi-arrow-up-right"></i>
-  Link 1
-</button>
-<?php elseif (!empty($offer['redirect_url'])): ?>
-<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
-  <i class="hgi-stroke hgi-arrow-up-right"></i>
-  Claim Now – <?php echo htmlspecialchars($offer['brand_name']); ?>
+  <?php echo !empty($offer['link2']) ? 'Link 1' : 'Claim Now – ' . htmlspecialchars($offer['brand_name']); ?>
 </button>
 <?php endif; ?>
+</div>
 <?php endif; ?>
 
 
