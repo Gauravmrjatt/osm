@@ -358,7 +358,6 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     </div>
     <?php endif; ?>
     
-    <p class="cta-note">Cashback tracked automatically</p>
   </div>
 
   <!-- Steps -->
