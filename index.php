@@ -420,7 +420,9 @@ $conn->close();
   .expire-card:nth-child(3) { animation-delay: 0.4s; }
   .expire-card:nth-child(4) { animation-delay: 0.45s; }
   .expire-card:nth-child(5) { animation-delay: 0.5s; }
-  .expire-emoji { font-size: 2rem; margin-bottom: 8px; }
+  .expire-emoji { width: 50px; height: 50px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
+  .expire-emoji img { width: 100%; height: 100%; object-fit: contain; }
+  .expire-emoji span { font-size: 2rem; }
   .expire-text {
     font-size: 0.75rem; font-weight: 700;
     color: rgba(0,0,0,0.75); line-height: 1.35;
@@ -553,7 +555,8 @@ $conn->close();
   <div class="logo">Pay<span>ou</span></div>
   <div class="nav-icons">
     <?php if ($is_admin): ?>
-    <a href="admin.php" class="admin-link"><div class="nav-icon">
+    <a href="admin.php">
+      <div class="nav-icon">
       <i class="hgi-stroke hgi-user-account"></i>
     </div>
     </a>
@@ -695,9 +698,9 @@ $conn->close();
           <div class="expire-badge"><?php echo $cashback; ?> Cashback</div>
           <div class="expire-emoji">
             <?php if (!empty($exp_offer['logo_image'])): ?>
-            <img src="uploads/<?php echo htmlspecialchars($exp_offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+            <img src="uploads/<?php echo htmlspecialchars($exp_offer['logo_image']); ?>">
             <?php else: ?>
-            <?php echo htmlspecialchars($exp_offer['brand_emoji']); ?>
+            <span><?php echo htmlspecialchars($exp_offer['brand_emoji']); ?></span>
             <?php endif; ?>
           </div>
           <div class="expire-text"><?php echo htmlspecialchars($exp_offer['title']); ?></div>
