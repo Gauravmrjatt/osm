@@ -542,11 +542,7 @@ $conn->close();
         <a href="offer.php?id=<?php echo $offer['id']; ?>" class="promo-card <?php echo $colors[$index % 4]; ?>">
           <?php if ($offer['is_popular']): ?><div class="promo-badge">HOT 🔥</div><?php endif; ?>
           <div class="promo-icon">
-            <?php if (!empty($offer['video_file'])): ?>
-            <video width="100%" height="100%" style="object-fit:cover;border-radius:16px;" autoplay muted loop playsinline>
-              <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
-            </video>
-            <?php elseif (!empty($offer['logo_image'])): ?>
+            <?php if (!empty($offer['logo_image'])): ?>
             <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
             <?php else: ?>
             <?php echo htmlspecialchars($offer['brand_emoji']); ?>
@@ -599,11 +595,7 @@ $conn->close();
         ?>
         <a href="offer.php?id=<?php echo $offer['id']; ?>" class="offer-card <?php echo $is_expired ? 'expired' : ''; ?>">
           <div class="offer-logo" style="background:#fff5f5;overflow:hidden;">
-            <?php if (!empty($offer['video_file'])): ?>
-            <video width="100%" height="100%" style="object-fit:cover;" autoplay muted loop playsinline>
-              <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
-            </video>
-            <?php elseif (!empty($offer['logo_image'])): ?>
+            <?php if (!empty($offer['logo_image'])): ?>
             <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
             <?php else: ?>
             <span><?php echo htmlspecialchars($offer['brand_emoji']); ?></span>
