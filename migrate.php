@@ -52,6 +52,15 @@ if ($result->num_rows == 0) {
     echo "link2 column already exists.<br>";
 }
 
+// Add payout_type column if it doesn't exist
+$result = $conn->query("SHOW COLUMNS FROM offers LIKE 'payout_type'");
+if ($result->num_rows == 0) {
+    $conn->query("ALTER TABLE offers ADD payout_type ENUM('instant', '24-72h') DEFAULT 'instant'");
+    echo "Added payout_type column successfully!<br>";
+} else {
+    echo "payout_type column already exists.<br>";
+}
+
 echo "Migration complete!";
 $conn->close();
 ?>
