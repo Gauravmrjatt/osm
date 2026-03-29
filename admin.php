@@ -110,15 +110,21 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Insert steps
         foreach ($steps as $i => $step) {
+            $step_num = $i + 1;
+            $step_title = $step['title'];
+            $step_desc = $step['description'];
+            $step_time = $step['time'];
             $stmt = $conn->prepare("INSERT INTO offer_steps (offer_id, step_number, step_title, step_description, step_time) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("iisss", $id, $i + 1, $step['title'], $step['description'], $step['time']);
+            $stmt->bind_param("iisss", $id, $step_num, $step_title, $step_desc, $step_time);
             $stmt->execute();
         }
         
         // Insert terms
         foreach ($terms as $i => $term) {
+            $term_num = $i + 1;
+            $term_text = $term;
             $stmt = $conn->prepare("INSERT INTO offer_terms (offer_id, term_text, sort_order) VALUES (?, ?, ?)");
-            $stmt->bind_param("isi", $id, $term, $i + 1);
+            $stmt->bind_param("isi", $id, $term_text, $term_num);
             $stmt->execute();
         }
         
