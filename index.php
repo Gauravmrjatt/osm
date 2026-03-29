@@ -69,7 +69,8 @@ $featured_offers = $featured_result->fetch_all(MYSQLI_ASSOC);
 $stats_sql = "SELECT 
     COUNT(*) as total_offers,
     SUM(claimed_count) as total_claimed,
-    SUM(CASE WHEN expiry_date >= CURDATE() THEN 1 ELSE 0 END) as active_offers
+    SUM(CASE WHEN expiry_date >= CURDATE() THEN 1 ELSE 0 END) as active_offers,
+    COALESCE(MAX(max_cashback), 0) as max_cashback
 FROM offers WHERE status = 'active'";
 $stats = $conn->query($stats_sql)->fetch_assoc();
 
@@ -700,8 +701,8 @@ $conn->close();
           <div class="stat-icon">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <div class="stat-value"><?php echo formatNumber($stats['total_offers'] ?? 0); ?></div>
-          <div class="stat-label">Total Offers</div>
+          <div class="stat-value">₹<?php echo number_format($stats['max_cashback'] ?? 0); ?></div>
+          <div class="stat-label">Max Earning</div>
         </div>
       </div>
     </div>
