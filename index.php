@@ -133,6 +133,7 @@ $conn->close();
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .navbar {
