@@ -27,6 +27,22 @@ if (!is_dir('uploads')) {
     echo "Created uploads directory.<br>";
 }
 
+// Create banners table if it doesn't exist
+$result = $conn->query("SHOW TABLES LIKE 'banners'");
+if ($result->num_rows == 0) {
+    $conn->query("CREATE TABLE IF NOT EXISTS banners (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        image_url VARCHAR(500) NOT NULL,
+        link_url VARCHAR(500) DEFAULT '',
+        sort_order INT DEFAULT 0,
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    echo "Created banners table successfully!<br>";
+} else {
+    echo "banners table already exists.<br>";
+}
+
 echo "Migration complete!";
 $conn->close();
 ?>
