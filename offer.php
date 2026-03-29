@@ -58,7 +58,9 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>OSM – <?php echo htmlspecialchars($offer['title']); ?></title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css"/>
 <style>
   :root {
@@ -88,7 +90,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   .hi-xs { font-size: 14px; }
 
   body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Mulish', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -110,7 +112,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     display:flex; align-items:center; gap:8px;
     background: var(--primary-light); color:var(--primary);
     border:none; border-radius:12px; padding:8px 14px;
-    font-family:'Poppins',sans-serif; font-size:0.82rem; font-weight:600;
+    font-family:'Mulish',sans-serif; font-size:0.82rem; font-weight:600;
     cursor:pointer; transition:all 0.2s; text-decoration:none;
   }
   .back-btn:hover { background:var(--primary); color:#fff; }
@@ -311,14 +313,14 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   .modal-cancel {
     flex:1; padding:13px; border:1.5px solid rgba(79,70,229,0.25);
     border-radius:14px; background:#fff; color:var(--text-sub);
-    font-family:'Poppins',sans-serif; font-weight:600; font-size:0.88rem;
+    font-family:'Mulish',sans-serif; font-weight:600; font-size:0.88rem;
     cursor:pointer; transition:all 0.2s;
   }
   .modal-cancel:hover { border-color:var(--primary); color:var(--primary); }
   .modal-confirm {
     flex:1; padding:13px; border:none;
     border-radius:14px; background:linear-gradient(135deg,#4f46e5,#6366f1);
-    color:#fff; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.88rem;
+    color:#fff; font-family:'Mulish',sans-serif; font-weight:700; font-size:0.88rem;
     cursor:pointer; box-shadow:0 4px 14px rgba(79,70,229,0.4);
     transition:all 0.2s;
   }
