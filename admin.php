@@ -61,7 +61,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $is_featured = isset($_POST['is_featured']) ? 1 : 0;
         $is_verified = isset($_POST['is_verified']) ? 1 : 0;
         $is_popular = isset($_POST['is_popular']) ? 1 : 0;
-        $status = $_POST['status'];
+        $status = in_array($_POST['status'], ['active', 'expired', 'draft']) ? $_POST['status'] : 'active';
         
         // Steps
         $steps = [];
@@ -90,7 +90,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($id > 0) {
             // Update existing
             $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
-            $stmt->bind_param("sssssddssssiisiiii", $title, $description, $brand_name, $brand_emoji, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
+            $stmt->bind_param("sssssddssssiisiiis", $title, $description, $brand_name, $brand_emoji, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
             $stmt->execute();
             
             // Delete old steps and terms
@@ -101,7 +101,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Insert new
             $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssddssssiisiiii", $title, $description, $brand_name, $brand_emoji, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
+            $stmt->bind_param("sssssddssssiisiiis", $title, $description, $brand_name, $brand_emoji, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
             $stmt->execute();
             $id = $conn->insert_id;
             
