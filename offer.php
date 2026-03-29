@@ -618,11 +618,19 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
         Offer Expired
       </button>
       <p class="cta-note" style="color: var(--red);">This offer is no longer available</p>
-      <?php elseif ($offer['redirect_url']): ?>
+      <?php elseif (!empty($offer['redirect_url']) || !empty($offer['link2'])): ?>
+      <?php if (!empty($offer['redirect_url'])): ?>
       <button type="button" class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
         <i class="hgi-stroke hgi-arrow-up-right"></i>
-        Claim Now – Go to <?php echo htmlspecialchars($offer['brand_name']); ?>
+        Link 1 – <?php echo htmlspecialchars($offer['brand_name']); ?>
       </button>
+      <?php endif; ?>
+      <?php if (!empty($offer['link2'])): ?>
+      <button type="button" class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
+        <i class="hgi-stroke hgi-arrow-up-right"></i>
+        Link 2 – <?php echo htmlspecialchars($offer['brand_name']); ?>
+      </button>
+      <?php endif; ?>
       <?php else: ?>
       <button type="button" class="cta-btn" onclick="openModal('')">
         <i class="hgi-stroke hgi-arrow-up-right"></i>
@@ -636,11 +644,22 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
 
 </div>
 
-<?php if (!$is_expired): ?>
-<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url'] ?? ''); ?>')">
+<?php if (!$is_expired && (!empty($offer['redirect_url']) || !empty($offer['link2']))): ?>
+<?php if (!empty($offer['link2'])): ?>
+<button type="button" class="mobile-fixed-cta" style="bottom:140px;" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
+  <i class="hgi-stroke hgi-arrow-up-right"></i>
+  Link 2
+</button>
+<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
+  <i class="hgi-stroke hgi-arrow-up-right"></i>
+  Link 1
+</button>
+<?php elseif (!empty($offer['redirect_url'])): ?>
+<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
   <i class="hgi-stroke hgi-arrow-up-right"></i>
   Claim Now – <?php echo htmlspecialchars($offer['brand_name']); ?>
 </button>
+<?php endif; ?>
 <?php endif; ?>
 
 

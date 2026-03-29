@@ -43,6 +43,15 @@ if ($result->num_rows == 0) {
     echo "banners table already exists.<br>";
 }
 
+// Add link2 column if it doesn't exist
+$result = $conn->query("SHOW COLUMNS FROM offers LIKE 'link2'");
+if ($result->num_rows == 0) {
+    $conn->query("ALTER TABLE offers ADD link2 VARCHAR(500) DEFAULT '' AFTER redirect_url");
+    echo "Added link2 column successfully!<br>";
+} else {
+    echo "link2 column already exists.<br>";
+}
+
 echo "Migration complete!";
 $conn->close();
 ?>

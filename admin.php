@@ -79,6 +79,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $expiry_date = $_POST['expiry_date'];
         $promo_code = $_POST['promo_code'];
         $redirect_url = $_POST['redirect_url'];
+        $link2 = $_POST['link2'] ?? '';
         $claimed_count = intval($_POST['claimed_count']);
         $rating = floatval($_POST['rating']);
         $is_featured = isset($_POST['is_featured']) ? 1 : 0;
@@ -112,8 +113,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($id > 0) {
             // Update existing
-            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, video_file=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
-            $stmt->bind_param("sssssssdddssssidiiisi", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
+            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, video_file=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, link2=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
+            $stmt->bind_param("sssssssdddsssssdiiisi", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
             $stmt->execute();
             
             // Delete old steps and terms
@@ -123,8 +124,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Offer updated successfully.';
         } else {
             // Insert new
-            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssssdddssssidiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
+            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, link2, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssssdddsssssdiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
             $stmt->execute();
             $id = $conn->insert_id;
             
@@ -268,6 +269,7 @@ if (isset($_GET['edit']) && $is_logged_in) {
             'expiry_date' => date('Y-m-d', strtotime('+30 days')),
             'promo_code' => '',
             'redirect_url' => '',
+            'link2' => '',
             'claimed_count' => 0,
             'rating' => 0,
             'is_featured' => 0,
@@ -734,8 +736,12 @@ $conn->close();
           <input type="text" name="promo_code" value="<?php echo htmlspecialchars($edit_offer['promo_code'] ?? ''); ?>">
         </div>
         <div class="form-group">
-          <label>Redirect URL</label>
+          <label>Link 1 (Primary)</label>
           <input type="url" name="redirect_url" value="<?php echo htmlspecialchars($edit_offer['redirect_url'] ?? ''); ?>">
+        </div>
+        <div class="form-group">
+          <label>Link 2 (Optional)</label>
+          <input type="url" name="link2" value="<?php echo htmlspecialchars($edit_offer['link2'] ?? ''); ?>" placeholder="Optional second link">
         </div>
         <div class="form-group">
           <label>Status</label>
