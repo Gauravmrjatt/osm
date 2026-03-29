@@ -65,6 +65,9 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css"/>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/video.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/player.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@videojs/html/cdn/videojs-theme.css">
 <style>
   :root {
     --primary: #4f46e5;
@@ -129,7 +132,10 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     .page { grid-template-columns: 1fr 380px; padding: 36px 28px 60px; gap: 28px; }
   }
 
-  .carousel-wrap { position:relative; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md); background:#fff; }
+  .carousel-wrap { position:relative; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md); background:#000; }
+  video-player { width: 100%; display: block; }
+  video-player video { width: 100%; height: 280px; object-fit: contain; background: #000; }
+  @media(min-width:768px) { video-player video { height: 350px; } }
   .carousel-track { display:flex; transition:transform 0.45s cubic-bezier(.4,0,.2,1); }
   .carousel-slide {
     flex:0 0 100%; height:260px;
@@ -377,10 +383,30 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
     <div class="carousel-wrap" style="border-radius:var(--radius);overflow:hidden;">
       <?php if (!empty($offer['video_file'])): ?>
-      <video width="100%" height="280" style="width:100%;object-fit:contain;background:#000;" controls playsinline>
-        <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+      <video-player>
+        <media-container class="media-default-skin media-default-skin--video">
+          <video src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" playsinline></video>
+          <media-controls class="media-surface media-controls">
+            <media-tooltip-group>
+              <media-play-button class="media-button media-button--subtle media-button--icon media-button--play"></media-play-button>
+              <media-seek-button seconds="-10" class="media-button media-button--subtle media-button--icon media-button--seek"></media-seek-button>
+              <media-seek-button seconds="10" class="media-button media-button--subtle media-button--icon media-button--seek"></media-seek-button>
+              <media-time-group class="media-time">
+                <media-time type="current" class="media-time__value"></media-time>
+                <media-time-slider class="media-slider">
+                  <media-slider-track class="media-slider__track">
+                    <media-slider-fill class="media-slider__fill"></media-slider-fill>
+                  </media-slider-track>
+                  <media-slider-thumb class="media-slider__thumb"></media-slider-thumb>
+                </media-time-slider>
+                <media-time type="duration" class="media-time__value"></media-time>
+              </media-time-group>
+              <media-mute-button class="media-button media-button--subtle media-button--icon media-button--mute"></media-mute-button>
+              <media-fullscreen-button class="media-button media-button--subtle media-button--icon media-button--fullscreen"></media-fullscreen-button>
+            </media-tooltip-group>
+          </media-controls>
+        </media-container>
+      </video-player>
       <?php elseif (!empty($offer['logo_image'])): ?>
       <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:auto;object-fit:contain;">
       <?php else: ?>
