@@ -5,6 +5,13 @@ session_start();
 
 $message = '';
 $message_type = '';
+
+// Check for success messages from redirects
+if (isset($_GET['msg']) && isset($_GET['type'])) {
+    $message = $_GET['msg'];
+    $message_type = $_GET['type'];
+}
+
 $is_logged_in = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 
 // Password verification
@@ -123,6 +130,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->query("DELETE FROM offer_terms WHERE offer_id = $id");
             
             $message = 'Offer updated successfully.';
+            header('Location: admin.php?tab=offers&msg=' . urlencode($message) . '&type=success');
+            exit;
         } else {
             // Insert new
             $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, min_amount, max_amount, expiry_date, promo_code, redirect_url, link2, claimed_count, rating, is_featured, is_verified, is_popular, status, payout_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
@@ -131,6 +140,9 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $conn->insert_id;
             
             $message = 'Offer created successfully.';
+            $message_type = 'success';
+            header('Location: admin.php?tab=offers&msg=' . urlencode($message) . '&type=success');
+            exit;
         }
         
         // Insert steps
