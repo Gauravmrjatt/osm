@@ -5,13 +5,15 @@ session_start();
 
 $message = '';
 $message_type = '';
+$is_logged_in = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
 
 // Password verification
-if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']) {
+if (!$is_logged_in) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
         if ($_POST['password'] === ADMIN_PASSWORD) {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_token'] = md5(uniqid(rand(), true));
+            $is_logged_in = true;
         } else {
             $message = 'Incorrect password. Please try again.';
             $message_type = 'error';
@@ -27,7 +29,7 @@ if (isset($_GET['logout'])) {
 }
 
 // Handle form submissions
-if ($_SESSION['admin_logged_in'] && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = getDB();
     
     // Delete offer
@@ -140,7 +142,7 @@ $offers = $offers_result->fetch_all(MYSQLI_ASSOC);
 
 // Get offer for editing
 $edit_offer = null;
-if (isset($_GET['edit']) && $_SESSION['admin_logged_in']) {
+if (isset($_GET['edit']) && $is_logged_in) {
     $edit_id = intval($_GET['edit']);
     $edit_result = $conn->query("SELECT * FROM offers WHERE id = $edit_id");
     $edit_offer = $edit_result->fetch_assoc();
@@ -163,7 +165,7 @@ $conn->close();
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Payou – Admin Panel</title>
+<title>OSM – Admin Panel</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
   :root {
@@ -267,7 +269,7 @@ $conn->close();
 </head>
 <body>
 
-<?php if (!isset($_SESSION['admin_logged_in']) || !$_SESSION['admin_logged_in']): ?>
+<?php if (!$is_logged_in): ?>
 <div class="password-form">
   <div class="card">
     <h2 class="logo">Pay<span>ou</span> Admin</h2>
