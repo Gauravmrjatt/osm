@@ -121,10 +121,10 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   .page {
     max-width: 980px;
     margin: 0 auto;
-    padding: 28px 18px 100px;
+    padding: 20px 16px 130px;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 22px;
+    gap: 16px;
   }
   @media(min-width:768px) {
     .page { grid-template-columns: 1fr 380px; padding: 36px 28px 60px; gap: 28px; }
@@ -311,7 +311,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   }
   @media(max-width: 767px) {
     .mobile-fixed-cta { display: flex; }
-    .page { padding-bottom: 40px; }
+    .page { padding-bottom: 80px; }
     .desktop-cta { display: none !important; }
   }
   .cta-note span { color:var(--primary); font-weight:600; }
