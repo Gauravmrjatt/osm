@@ -393,6 +393,7 @@ $conn->close();
     margin-bottom: 40px;
   }
   .expire-card {
+    background: linear-gradient(135deg, #ffcba4 0%, #ff8c69 100%);
     border-radius: var(--radius-sm);
     padding: 18px 14px;
     display: flex; flex-direction: column;
@@ -404,14 +405,14 @@ $conn->close();
     transition: transform 0.25s, box-shadow 0.25s;
     position: relative; overflow: hidden;
     text-decoration: none; color: inherit;
+    animation: fadeUp 0.4s ease both;
   }
   .expire-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-  .expire-card.pizza { background: linear-gradient(135deg, #ffcba4 0%, #ff8c69 100%); }
-  .expire-card.flight { background: linear-gradient(135deg, #c7d9ff 0%, #93b4f7 100%); }
-  .expire-card.ticket { background: linear-gradient(135deg, #d4f5a0 0%, #a3e635 100%); }
-  .expire-card.food { background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%); }
-  .expire-card.health { background: linear-gradient(135deg, #bbf7d0 0%, #4ade80 100%); }
-  .expire-card.travel { background: linear-gradient(135deg, #c7d9ff 0%, #93b4f7 100%); }
+  .expire-card:nth-child(1) { animation-delay: 0.3s; }
+  .expire-card:nth-child(2) { animation-delay: 0.35s; }
+  .expire-card:nth-child(3) { animation-delay: 0.4s; }
+  .expire-card:nth-child(4) { animation-delay: 0.45s; }
+  .expire-card:nth-child(5) { animation-delay: 0.5s; }
   .expire-emoji { font-size: 2rem; margin-bottom: 8px; }
   .expire-text {
     font-size: 0.75rem; font-weight: 700;
@@ -534,10 +535,6 @@ $conn->close();
   .offer-card:nth-child(3) { animation-delay: 0.15s; }
   .offer-card:nth-child(4) { animation-delay: 0.20s; }
   .offer-card:nth-child(5) { animation-delay: 0.25s; }
-  .expire-card { animation: fadeUp 0.4s ease both; }
-  .expire-card:nth-child(1) { animation-delay: 0.3s; }
-  .expire-card:nth-child(2) { animation-delay: 0.35s; }
-  .expire-card:nth-child(3) { animation-delay: 0.40s; }
 </style>
 </head>
 <body>
@@ -576,7 +573,7 @@ $conn->close();
       <?php endif; ?>
 
       <!-- PROMO CARDS -->
-      <?php if (!empty($featured_offers)): ?>
+      <!-- <?php if (!empty($featured_offers)): ?>
       <div class="promo-scroll">
         <?php foreach ($featured_offers as $index => $offer): ?>
         <?php $colors = ['salmon', 'mint', 'lavender', 'blue']; ?>
@@ -596,7 +593,7 @@ $conn->close();
         </a>
         <?php endforeach; ?>
       </div>
-      <?php endif; ?>
+      <?php endif; ?> -->
 
 
       <!-- CATEGORY TABS -->
