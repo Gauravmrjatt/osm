@@ -323,6 +323,44 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     </div>
   </div>
 
+  <!-- CTA Buttons -->
+  <div class="cta-row" style="margin-bottom: 16px;">
+    <?php if ($is_expired): ?>
+      <button class="cta-btn expired" disabled>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        Offer Expired
+      </button>
+    <?php elseif (!empty($offer['redirect_url'])): ?>
+      <button class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Claim <?php echo $cashback_display; ?> Now
+      </button>
+      <?php if (!empty($offer['link2'])): ?>
+      <button class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Tracking Link
+      </button>
+      <?php endif; ?>
+    <?php else: ?>
+      <button class="cta-btn" onclick="openModal('')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Claim <?php echo $cashback_display; ?> Now
+      </button>
+    <?php endif; ?>
+    
+    <?php if (!$is_expired && $offer['promo_code']): ?>
+    <div class="promo-code">
+      <div>
+        <div class="promo-code-label">Promo Code</div>
+        <div class="promo-code-value"><?php echo htmlspecialchars($offer['promo_code']); ?></div>
+      </div>
+      <button class="copy-btn" onclick="copyCode()">Copy</button>
+    </div>
+    <?php endif; ?>
+    
+    <p class="cta-note">Cashback tracked automatically</p>
+  </div>
+
   <!-- Steps -->
   <div class="card">
     <div class="card-title">
@@ -394,44 +432,6 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     </ul>
   </div>
   <?php endif; ?>
-
-  <!-- CTA Buttons -->
-  <div class="cta-row">
-    <?php if ($is_expired): ?>
-      <button class="cta-btn expired" disabled>
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        Offer Expired
-      </button>
-    <?php elseif (!empty($offer['redirect_url'])): ?>
-      <button class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        Claim <?php echo $cashback_display; ?> Now
-      </button>
-      <?php if (!empty($offer['link2'])): ?>
-      <button class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        Tracking Link
-      </button>
-      <?php endif; ?>
-    <?php else: ?>
-      <button class="cta-btn" onclick="openModal('')">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        Claim <?php echo $cashback_display; ?> Now
-      </button>
-    <?php endif; ?>
-    
-    <?php if (!$is_expired && $offer['promo_code']): ?>
-    <div class="promo-code">
-      <div>
-        <div class="promo-code-label">Promo Code</div>
-        <div class="promo-code-value"><?php echo htmlspecialchars($offer['promo_code']); ?></div>
-      </div>
-      <button class="copy-btn" onclick="copyCode()">Copy</button>
-    </div>
-    <?php endif; ?>
-    
-    <p class="cta-note">Cashback tracked automatically</p>
-  </div>
 
 </div>
 
