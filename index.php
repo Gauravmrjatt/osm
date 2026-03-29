@@ -104,8 +104,6 @@ $conn->close();
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
 <style>
   :root {
     --primary: #4f46e5;
@@ -176,20 +174,6 @@ $conn->close();
     max-width: 1100px;
     margin: 0 auto;
     padding: 32px 20px 100px;
-  }
-
-  .banner-slider { margin-bottom: 20px; }
-  .banner-slider .splide__slide { width: 300px; height: 150px; }
-  .banner-slider .splide__slide img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    border-radius: 16px;
-  }
-  .banner-slider .splide__track {
-    padding-bottom: 4px;
-  }
-  @media(min-width: 768px) {
-    .banner-slider .splide__slide { width: 500px; height: 200px; }
   }
 
   .promo-scroll {
@@ -587,22 +571,19 @@ $conn->close();
 
       <!-- BANNERS -->
       <?php if (!empty($banners)): ?>
-      <div class="splide banner-slider" id="bannerSlider">
-        <div class="splide__track">
-          <div class="splide__list">
-            <?php foreach ($banners as $banner): ?>
-            <div class="splide__slide">
-              <?php if (!empty($banner['link_url'])): ?>
-              <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank">
-                <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" class="banner-img">
-              </a>
-              <?php else: ?>
-              <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" class="banner-img">
-              <?php endif; ?>
-            </div>
-            <?php endforeach; ?>
-          </div>
+      <div class="promo-scroll">
+        <?php $colors = ['salmon', 'mint', 'lavender', 'blue']; ?>
+        <?php foreach ($banners as $index => $banner): ?>
+        <div class="promo-card <?php echo $colors[$index % 4]; ?>">
+          <?php if (!empty($banner['link_url'])): ?>
+          <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank" style="display:contents;">
+            <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+          </a>
+          <?php else: ?>
+          <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">
+          <?php endif; ?>
         </div>
+        <?php endforeach; ?>
       </div>
       <?php endif; ?>
 
@@ -795,24 +776,6 @@ $conn->close();
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       this.classList.add('active');
     });
-  });
-
-  // Initialize Splide Banner Carousel
-  document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('bannerSlider')) {
-      new Splide('#bannerSlider', {
-        type: 'loop',
-        autoplay: true,
-        interval: 3000,
-        perPage: 1,
-        gap: 12,
-        arrows: false,
-        pagination: false,
-        drag: true,
-        pauseOnHover: true,
-        speed: 800,
-      }).mount();
-    }
   });
 </script>
 
