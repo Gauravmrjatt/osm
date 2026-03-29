@@ -327,7 +327,8 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   }
   @media(max-width: 767px) {
     .mobile-cta-row { display: flex; }
-    .mobile-fixed-cta:not(.mobile-cta-row .mobile-fixed-cta) { display: flex; }
+    .mobile-cta-row .mobile-fixed-cta { display: flex; }
+    .mobile-fixed-cta { display: none; }
     .page { padding-bottom: 80px; }
     .desktop-cta { display: none !important; }
   }
