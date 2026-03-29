@@ -49,37 +49,11 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $brand_name = $_POST['brand_name'];
         $brand_emoji = $_POST['brand_emoji'];
         
-        // Handle logo image upload
-        $logo_image = $_POST['existing_logo'] ?? '';
-        if (!empty($_FILES['logo_image']['name'])) {
-            $upload_dir = 'uploads/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
-            $ext = pathinfo($_FILES['logo_image']['name'], PATHINFO_EXTENSION);
-            $new_filename = time() . '_' . rand(1000, 9999) . '.' . $ext;
-            $target_path = $upload_dir . $new_filename;
-            
-            if (move_uploaded_file($_FILES['logo_image']['tmp_name'], $target_path)) {
-                $logo_image = $new_filename;
-            }
-        }
+        // Handle logo image upload (from hidden input or new upload)
+        $logo_image = $_POST['logo_image'] ?? '';
         
-        // Handle video upload
-        $video_file = $_POST['existing_video'] ?? '';
-        if (!empty($_FILES['video_file']['name'])) {
-            $upload_dir = 'uploads/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
-            $ext = pathinfo($_FILES['video_file']['name'], PATHINFO_EXTENSION);
-            $new_filename = time() . '_' . rand(1000, 9999) . '.' . $ext;
-            $target_path = $upload_dir . $new_filename;
-            
-            if (move_uploaded_file($_FILES['video_file']['tmp_name'], $target_path)) {
-                $video_file = $new_filename;
-            }
-        }
+        // Handle video upload (from hidden input or new upload)
+        $video_file = $_POST['video_file'] ?? '';
         
         $category = $_POST['category'];
         $min_order_amount = floatval($_POST['min_order_amount']);
@@ -403,27 +377,45 @@ $conn->close();
         </div>
         <div class="form-group">
           <label>Brand Logo Image</label>
-          <?php if (!empty($edit_offer['logo_image'])): ?>
-          <div style="margin-bottom: 8px;">
-            <img src="uploads/<?php echo htmlspecialchars($edit_offer['logo_image']); ?>" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd;">
-            <input type="hidden" name="existing_logo" value="<?php echo htmlspecialchars($edit_offer['logo_image']); ?>">
+          <div id="logo-preview-container">
+            <?php if (!empty($edit_offer['logo_image'])): ?>
+            <div style="margin-bottom: 8px;" id="logo-preview">
+              <img src="uploads/<?php echo htmlspecialchars($edit_offer['logo_image']); ?>" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd;">
+              <input type="hidden" name="logo_image" value="<?php echo htmlspecialchars($edit_offer['logo_image']); ?>">
+              <button type="button" onclick="removeLogo()" style="margin-left:5px;padding:2px 8px;background:#fee2e2;color:#ef4444;border:none;border-radius:4px;cursor:pointer;">✕</button>
+            </div>
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
-          <input type="file" name="logo_image" accept="image/*">
-          <small style="color: var(--text-sub);">Leave empty to keep existing logo</small>
+          <input type="file" id="logo-input" accept="image/*" onchange="uploadFile(this, 'logo')">
+          <small style="color: var(--text-sub);">Select image to upload</small>
+          <div id="logo-progress" style="display:none;margin-top:8px;">
+            <div style="background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden;">
+              <div id="logo-progress-bar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div>
+            </div>
+            <small id="logo-progress-text" style="color:var(--text-sub);">Uploading... 0%</small>
+          </div>
         </div>
         <div class="form-group">
           <label>Promo Video (MP4/WebM)</label>
-          <?php if (!empty($edit_offer['video_file'])): ?>
-          <div style="margin-bottom: 8px;">
-            <video width="120" height="80" style="object-fit:contain;border-radius:8px;border:1px solid #ddd;" controls>
-              <source src="uploads/<?php echo htmlspecialchars($edit_offer['video_file']); ?>" type="video/mp4">
-            </video>
-            <input type="hidden" name="existing_video" value="<?php echo htmlspecialchars($edit_offer['video_file']); ?>">
+          <div id="video-preview-container">
+            <?php if (!empty($edit_offer['video_file'])): ?>
+            <div style="margin-bottom: 8px;" id="video-preview">
+              <video width="120" height="80" style="object-fit:contain;border-radius:8px;border:1px solid #ddd;" controls>
+                <source src="uploads/<?php echo htmlspecialchars($edit_offer['video_file']); ?>" type="video/mp4">
+              </video>
+              <input type="hidden" name="video_file" value="<?php echo htmlspecialchars($edit_offer['video_file']); ?>">
+              <button type="button" onclick="removeVideo()" style="margin-left:5px;padding:2px 8px;background:#fee2e2;color:#ef4444;border:none;border-radius:4px;cursor:pointer;">✕</button>
+            </div>
+            <?php endif; ?>
           </div>
-          <?php endif; ?>
-          <input type="file" name="video_file" accept="video/mp4,video/webm">
-          <small style="color: var(--text-sub);">Leave empty to keep existing video</small>
+          <input type="file" id="video-input" accept="video/mp4,video/webm" onchange="uploadFile(this, 'video')">
+          <small style="color: var(--text-sub);">Select video to upload (max 50MB)</small>
+          <div id="video-progress" style="display:none;margin-top:8px;">
+            <div style="background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden;">
+              <div id="video-progress-bar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div>
+            </div>
+            <small id="video-progress-text" style="color:var(--text-sub);">Uploading... 0%</small>
+          </div>
         </div>
         <div class="form-group">
           <label>Category</label>
@@ -657,6 +649,92 @@ $conn->close();
 </div>
 
 <?php endif; ?>
+
+<script>
+function uploadFile(input, type) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const progressContainer = document.getElementById(type + '-progress');
+    const progressBar = document.getElementById(type + '-progress-bar');
+    const progressText = document.getElementById(type + '-progress-text');
+    const previewContainer = document.getElementById(type + '-preview-container');
+    
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Uploading... 0%';
+    
+    const formData = new FormData();
+    if (type === 'logo') {
+        formData.append('logo_image', file);
+    } else {
+        formData.append('video_file', file);
+    }
+    
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = percent + '%';
+            progressText.textContent = 'Uploading... ' + percent + '%';
+        }
+    });
+    
+    xhr.addEventListener('load', function() {
+        progressBar.style.width = '100%';
+        progressText.textContent = 'Upload complete!';
+        
+        try {
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+                // Show preview
+                let html = '';
+                if (type === 'logo') {
+                    html = '<div style="margin-bottom:8px;" id="logo-preview">' +
+                        '<img src="uploads/' + response.filename + '" style="width:60px;height:60px;object-fit:contain;border-radius:8px;border:1px solid #ddd;">' +
+                        '<input type="hidden" name="logo_image" value="' + response.filename + '">' +
+                        '<button type="button" onclick="removeLogo()" style="margin-left:5px;padding:2px 8px;background:#fee2e2;color:#ef4444;border:none;border-radius:4px;cursor:pointer;">✕</button></div>';
+                } else {
+                    html = '<div style="margin-bottom:8px;" id="video-preview">' +
+                        '<video width="120" height="80" style="object-fit:contain;border-radius:8px;border:1px solid #ddd;" controls>' +
+                        '<source src="uploads/' + response.filename + '" type="video/mp4">' +
+                        '</video>' +
+                        '<input type="hidden" name="video_file" value="' + response.filename + '">' +
+                        '<button type="button" onclick="removeVideo()" style="margin-left:5px;padding:2px 8px;background:#fee2e2;color:#ef4444;border:none;border-radius:4px;cursor:pointer;">✕</button></div>';
+                }
+                previewContainer.innerHTML = html;
+                input.value = ''; // Clear input
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 1500);
+            } else {
+                progressText.textContent = 'Error: ' + response.error;
+                progressBar.style.background = '#ef4444';
+            }
+        } catch (e) {
+            progressText.textContent = 'Error parsing response';
+            progressBar.style.background = '#ef4444';
+        }
+    });
+    
+    xhr.addEventListener('error', function() {
+        progressText.textContent = 'Upload failed';
+        progressBar.style.background = '#ef4444';
+    });
+    
+    xhr.open('POST', 'upload.php', true);
+    xhr.send(formData);
+}
+
+function removeLogo() {
+    document.getElementById('logo-preview-container').innerHTML = '';
+}
+
+function removeVideo() {
+    document.getElementById('video-preview-container').innerHTML = '';
+}
+</script>
 
 </body>
 </html>
