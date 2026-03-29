@@ -287,6 +287,32 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   .cta-btn.expired { background: linear-gradient(135deg,#9ca3af,#6b7280); cursor: not-allowed; }
 
   .cta-note { text-align:center; font-size:0.72rem; color:var(--text-sub); margin-top:8px; }
+
+  .mobile-fixed-cta {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 12px;
+    right: 12px;
+    z-index: 150;
+    padding: 14px 20px;
+    background: linear-gradient(135deg,#4f46e5 0%,#6366f1 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    box-shadow: 0 6px 24px rgba(79,70,229,0.5);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  @media(max-width: 767px) {
+    .mobile-fixed-cta { display: flex; }
+    .page { padding-bottom: 40px; }
+  }
   .cta-note span { color:var(--primary); font-weight:600; }
 
   .stats-row { display:flex; gap:10px; }
@@ -540,7 +566,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
       </div>
     </div> -->
 
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-title">
         <i class="hgi-stroke hgi-information-circle"></i>
         Important Notices
@@ -568,7 +594,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <?php if (!empty($terms)): ?>
     <div class="card" style="font-size:0.76rem;color:var(--text-sub);line-height:1.7;">
@@ -608,6 +634,13 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   </div>
 
 </div>
+
+<?php if (!$is_expired): ?>
+<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url'] ?? ''); ?>')">
+  <i class="hgi-stroke hgi-arrow-up-right"></i>
+  Claim Now – <?php echo htmlspecialchars($offer['brand_name']); ?>
+</button>
+<?php endif; ?>
 
 <nav class="bottom-nav">
   <a href="index.php" class="nav-item">
