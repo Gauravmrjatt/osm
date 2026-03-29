@@ -264,6 +264,24 @@ $conn->close();
     font-weight: 900; font-size: 1.35rem; color: var(--text);
   }
   
+  .collapsible-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .collapsible-header:hover .section-title { color: var(--primary); }
+  .collapsible-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.3s;
+    color: var(--primary);
+  }
+  .collapsible-icon svg { width: 14px; height: 14px; }
+  .collapsible-section.collapsed .collapsible-icon { transform: rotate(-90deg); }
+  .collapsible-section.collapsed .collapsible-content { display: none; }
+  
   .filter-bar {
     display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
   }
@@ -635,9 +653,13 @@ $conn->close();
       </div>
 
       <!-- TOP OFFERS -->
-      <div class="section-header">
-        <h2 class="section-title">Top Offers</h2>
-        <form class="filter-bar" method="get">
+      <div class="collapsible-section">
+        <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <h2 class="section-title">Top Offers</h2>
+          <div class="collapsible-icon"><i class="hgi-stroke hgi-arrow-down"></i></div>
+        </div>
+        <div class="collapsible-content">
+        <form class="filter-bar" method="get" style="margin-bottom: 18px;">
           <?php if ($category_filter !== 'All'): ?>
           <input type="hidden" name="category" value="<?php echo htmlspecialchars($category_filter); ?>">
           <?php endif; ?>
@@ -650,7 +672,6 @@ $conn->close();
           <input type="number" name="min_amount" class="filter-input" placeholder="Min ₹" value="<?php echo $min_amount; ?>" min="0" onchange="this.form.submit()">
           <input type="number" name="max_amount" class="filter-input" placeholder="Max ₹" value="<?php echo $max_amount < 10000 ? $max_amount : ''; ?>" min="0" onchange="this.form.submit()">
         </form>
-      </div>
 
       <div class="offers-list">
         <?php foreach ($offers as $offer): ?>
@@ -696,15 +717,18 @@ $conn->close();
         </div>
         <?php endif; ?>
       </div>
+        </div>
+      </div>
 
       <!-- FEATURED OFFERS -->
       <?php if (!empty($featured_offers)): ?>
-      <div class="section-header">
-        <h2 class="section-title">Featured Offers ⭐</h2>
-        <a href="index.php?sort=featured" style="font-size:0.82rem;color:var(--primary);font-weight:600;text-decoration:none;">See all</a>
-      </div>
-
-      <div class="expire-grid">
+      <div class="collapsible-section">
+        <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <h2 class="section-title">Featured Offers ⭐</h2>
+          <div class="collapsible-icon"><i class="hgi-stroke hgi-arrow-down"></i></div>
+        </div>
+        <div class="collapsible-content">
+        <div class="expire-grid">
         <?php foreach ($featured_offers as $exp_offer): ?>
         <?php 
           $cashback = $exp_offer['cashback_type'] === 'flat' ? '₹' . number_format($exp_offer['max_cashback']) : $exp_offer['cashback_rate'] . '%';
@@ -721,7 +745,8 @@ $conn->close();
           <div class="expire-text"><?php echo htmlspecialchars($exp_offer['title']); ?></div>
         </a>
         <?php endforeach; ?>
-      </div>
+        </div>
+        </div>
       <?php endif; ?>
 
     </div>
