@@ -531,44 +531,6 @@ $conn->close();
 <div class="page-wrap">
   <div class="desktop-sidebar">
 
-    <aside class="sidebar">
-      <div class="sidebar-nav">
-        <a href="index.php" class="sidebar-item active">
-          <i class="hgi-stroke hgi-home"></i>
-          Home
-        </a>
-        <div class="sidebar-item">
-          <i class="hgi-stroke hgi-tag"></i>
-          Offers
-        </div>
-        <div class="sidebar-item">
-          <i class="hgi-stroke hgi-history"></i>
-          History
-        </div>
-        <div class="sidebar-item">
-          <i class="hgi-stroke hgi-setting"></i>
-          Account
-        </div>
-      </div>
-
-      <div style="margin-top:20px; background:#fff; border-radius:var(--radius); padding:18px 16px; box-shadow:var(--shadow-sm);">
-        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;margin-bottom:14px;color:var(--text);">Your Savings</div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div>
-            <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:var(--primary);">₹2,840</div>
-            <div style="font-size:0.72rem;color:var(--text-sub);">Total saved</div>
-          </div>
-          <div>
-            <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:var(--green);">14</div>
-            <div style="font-size:0.72rem;color:var(--text-sub);">Offers redeemed</div>
-          </div>
-          <div>
-            <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:1.4rem;color:var(--orange);">3</div>
-            <div style="font-size:0.72rem;color:var(--text-sub);">Expiring this week</div>
-          </div>
-        </div>
-      </div>
-    </aside>
 
     <div class="main-content">
 
@@ -579,7 +541,13 @@ $conn->close();
         <?php $colors = ['salmon', 'mint', 'lavender', 'blue']; ?>
         <a href="offer.php?id=<?php echo $offer['id']; ?>" class="promo-card <?php echo $colors[$index % 4]; ?>">
           <?php if ($offer['is_popular']): ?><div class="promo-badge">HOT 🔥</div><?php endif; ?>
-          <div class="promo-icon"><?php echo htmlspecialchars($offer['brand_emoji']); ?></div>
+          <div class="promo-icon">
+            <?php if (!empty($offer['logo_image'])): ?>
+            <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+            <?php else: ?>
+            <?php echo htmlspecialchars($offer['brand_emoji']); ?>
+            <?php endif; ?>
+          </div>
           <div class="promo-text">
             <h3><?php echo htmlspecialchars($offer['title']); ?></h3>
             <p><?php echo htmlspecialchars(substr($offer['description'], 0, 80)) . '...'; ?></p>
@@ -589,21 +557,6 @@ $conn->close();
       </div>
       <?php endif; ?>
 
-      <!-- STATS (mobile only) -->
-      <div class="stats-bar" style="display:none;" id="mobile-stats">
-        <div class="stat-card">
-          <div class="stat-value"><?php echo formatNumber($stats['total_claimed'] ?? 0); ?></div>
-          <div class="stat-label">Total Saved</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value"><?php echo $stats['total_offers'] ?? 0; ?></div>
-          <div class="stat-label">Offers</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value"><?php echo $stats['active_offers'] ?? 0; ?></div>
-          <div class="stat-label">Active</div>
-        </div>
-      </div>
 
       <!-- CATEGORY TABS -->
       <div class="category-tabs">
@@ -642,7 +595,11 @@ $conn->close();
         ?>
         <a href="offer.php?id=<?php echo $offer['id']; ?>" class="offer-card <?php echo $is_expired ? 'expired' : ''; ?>">
           <div class="offer-logo" style="background:#fff5f5;">
+            <?php if (!empty($offer['logo_image'])): ?>
+            <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+            <?php else: ?>
             <span><?php echo htmlspecialchars($offer['brand_emoji']); ?></span>
+            <?php endif; ?>
           </div>
           <div class="offer-body">
             <div class="offer-brand"><?php echo htmlspecialchars($offer['brand_name']); ?></div>
@@ -691,7 +648,13 @@ $conn->close();
         ?>
         <a href="offer.php?id=<?php echo $exp_offer['id']; ?>" class="expire-card <?php echo $cat_class; ?>">
           <div class="expire-badge"><?php echo $days; ?> days left</div>
-          <div class="expire-emoji"><?php echo htmlspecialchars($exp_offer['brand_emoji']); ?></div>
+          <div class="expire-emoji">
+            <?php if (!empty($exp_offer['logo_image'])): ?>
+            <img src="uploads/<?php echo htmlspecialchars($exp_offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+            <?php else: ?>
+            <?php echo htmlspecialchars($exp_offer['brand_emoji']); ?>
+            <?php endif; ?>
+          </div>
           <div class="expire-text"><?php echo htmlspecialchars($exp_offer['title']); ?></div>
         </a>
         <?php endforeach; ?>

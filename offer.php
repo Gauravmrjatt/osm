@@ -374,7 +374,11 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
       <div class="carousel-track" id="track">
         <?php if (empty($images)): ?>
         <div class="carousel-slide s1">
+          <?php if (!empty($offer['logo_image'])): ?>
+          <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+          <?php else: ?>
           <?php echo htmlspecialchars($offer['brand_emoji']); ?>
+          <?php endif; ?>
           <div class="carousel-deco"><?php echo $cashback_display; ?></div>
           <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
         </div>
@@ -403,7 +407,13 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     </div>
 
     <div class="brand-row">
-      <div class="brand-logo"><?php echo htmlspecialchars($offer['brand_emoji']); ?></div>
+      <div class="brand-logo">
+        <?php if (!empty($offer['logo_image'])): ?>
+        <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+        <?php else: ?>
+        <?php echo htmlspecialchars($offer['brand_emoji']); ?>
+        <?php endif; ?>
+      </div>
       <div class="brand-info">
         <h2><?php echo htmlspecialchars($offer['brand_name']); ?></h2>
         <p><?php echo htmlspecialchars($offer['category']); ?> · Verified · <?php echo formatNumber($offer['claimed_count']); ?>+ claimed</p>

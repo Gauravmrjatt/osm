@@ -48,6 +48,23 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $brand_name = $_POST['brand_name'];
         $brand_emoji = $_POST['brand_emoji'];
+        
+        // Handle logo image upload
+        $logo_image = $_POST['existing_logo'] ?? '';
+        if (!empty($_FILES['logo_image']['name'])) {
+            $upload_dir = 'uploads/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            $ext = pathinfo($_FILES['logo_image']['name'], PATHINFO_EXTENSION);
+            $new_filename = time() . '_' . rand(1000, 9999) . '.' . $ext;
+            $target_path = $upload_dir . $new_filename;
+            
+            if (move_uploaded_file($_FILES['logo_image']['tmp_name'], $target_path)) {
+                $logo_image = $new_filename;
+            }
+        }
+        
         $category = $_POST['category'];
         $min_order_amount = floatval($_POST['min_order_amount']);
         $max_cashback = floatval($_POST['max_cashback']);
@@ -89,8 +106,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($id > 0) {
             // Update existing
-            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
-            $stmt->bind_param("sssssddssssiisiiis", $title, $description, $brand_name, $brand_emoji, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
+            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
+            $stmt->bind_param("ssssssddssssiisiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
             $stmt->execute();
             
             // Delete old steps and terms
@@ -100,8 +117,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Offer updated successfully.';
         } else {
             // Insert new
-            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssddssssiisiiis", $title, $description, $brand_name, $brand_emoji, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
+            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssssssddssssiisiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
             $stmt->execute();
             $id = $conn->insert_id;
             
@@ -351,7 +368,7 @@ $conn->close();
       <a href="admin.php" class="btn btn-secondary btn-sm">Cancel</a>
     </div>
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       <input type="hidden" name="offer_id" value="<?php echo $edit_offer['id'] ?? 0; ?>">
       
       <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--text-sub); margin-bottom: 12px;">Basic Info</h3>
@@ -367,6 +384,17 @@ $conn->close();
         <div class="form-group">
           <label>Brand Emoji</label>
           <input type="text" name="brand_emoji" value="<?php echo htmlspecialchars($edit_offer['brand_emoji'] ?? '🎁'); ?>" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label>Brand Logo Image</label>
+          <?php if (!empty($edit_offer['logo_image'])): ?>
+          <div style="margin-bottom: 8px;">
+            <img src="uploads/<?php echo htmlspecialchars($edit_offer['logo_image']); ?>" style="width: 60px; height: 60px; object-fit: contain; border-radius: 8px; border: 1px solid #ddd;">
+            <input type="hidden" name="existing_logo" value="<?php echo htmlspecialchars($edit_offer['logo_image']); ?>">
+          </div>
+          <?php endif; ?>
+          <input type="file" name="logo_image" accept="image/*">
+          <small style="color: var(--text-sub);">Leave empty to keep existing logo</small>
         </div>
         <div class="form-group">
           <label>Category</label>
