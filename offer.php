@@ -83,11 +83,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .hi { display: inline-block; vertical-align: middle; }
-  .hi-lg { font-size: 24px; }
-  .hi-md { font-size: 20px; }
-  .hi-sm { font-size: 16px; }
-  .hi-xs { font-size: 14px; }
+  .hgi-stroke { display: inline-block; vertical-align: middle; font-size: 20px; }
 
   body {
     font-family: 'Mulish', sans-serif;
@@ -359,13 +355,13 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
 <nav class="navbar">
   <a href="index.php" class="back-btn">
-    <i class="hi hi-arrow-left"></i>
+    <i class="hgi-stroke hgi-arrow-left"></i>
     Back
   </a>
   <div class="logo">Pay<span>ou</span></div>
   <div style="width:74px;display:flex;justify-content:flex-end;">
     <a href="admin.php?edit=<?php echo $offer['id']; ?>" style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);cursor:pointer;text-decoration:none;">
-      <i class="hi hi-edit-01"></i>
+      <i class="hgi-stroke hgi-edit-01"></i>
     </a>
   </div>
 </nav>
@@ -393,10 +389,10 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
         <?php endif; ?>
       </div>
       <button class="c-prev" onclick="slide(-1)">
-        <i class="hi hi-arrow-left"></i>
+        <i class="hgi-stroke hgi-arrow-left"></i>
       </button>
       <button class="c-next" onclick="slide(1)">
-        <i class="hi hi-arrow-right"></i>
+        <i class="hgi-stroke hgi-arrow-right"></i>
       </button>
       <div class="c-dots" id="dots">
         <?php $totalSlides = count($images) ?: 1; ?>
@@ -421,7 +417,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
     <div class="card">
       <div class="card-title">
-        <i class="hi hi-file-02"></i>
+        <i class="hgi-stroke hgi-file-02"></i>
         Offer Description
       </div>
       <p class="desc-text"><?php echo nl2br(htmlspecialchars($offer['description'])); ?></p>
@@ -434,7 +430,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
     <div class="card">
       <div class="card-title">
-        <i class="hi hi-time"></i>
+        <i class="hgi-stroke hgi-time"></i>
         How to Claim – Step by Step
       </div>
       <div class="timeline">
@@ -447,7 +443,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
           <div class="tl-body">
             <div class="tl-step-title">Open the Offer</div>
             <div class="tl-step-desc">Tap "Claim Now" to be redirected to the merchant website.</div>
-            <div class="tl-time"><i class="hi hi-time"></i> Instant</div>
+            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> Instant</div>
           </div>
         </div>
         <div class="tl-item">
@@ -458,7 +454,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
           <div class="tl-body">
             <div class="tl-step-title">Apply Promo Code</div>
             <div class="tl-step-desc">Enter code <strong><?php echo htmlspecialchars($offer['promo_code']); ?></strong> at checkout.</div>
-            <div class="tl-time"><i class="hi hi-time"></i> Instant</div>
+            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> Instant</div>
           </div>
         </div>
         <div class="tl-item">
@@ -468,7 +464,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
           <div class="tl-body">
             <div class="tl-step-title">Cashback Credited!</div>
             <div class="tl-step-desc"><?php echo $cashback_display; ?> cashback added to your wallet within 24–48 hours.</div>
-            <div class="tl-time"><i class="hi hi-time"></i> 24–48 hrs</div>
+            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> 24–48 hrs</div>
           </div>
         </div>
         <?php else: ?>
@@ -482,7 +478,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
               <div class="tl-step-title"><?php echo htmlspecialchars($step['step_title']); ?></div>
               <div class="tl-step-desc"><?php echo htmlspecialchars($step['step_description']); ?></div>
               <?php if ($step['step_time']): ?>
-              <div class="tl-time"><i class="hi hi-time"></i> <?php echo htmlspecialchars($step['step_time']); ?></div>
+              <div class="tl-time"><i class="hgi-stroke hgi-time"></i> <?php echo htmlspecialchars($step['step_time']); ?></div>
               <?php endif; ?>
             </div>
           </div>
@@ -497,7 +493,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
     <div class="card">
       <div class="card-title">
-        <i class="hi hi-wallet"></i>
+        <i class="hgi-stroke hgi-wallet"></i>
         Amount & Payment Info
       </div>
       <div class="amount-grid">
@@ -547,7 +543,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
     <div class="card">
       <div class="card-title">
-        <i class="hi hi-information-circle"></i>
+        <i class="hgi-stroke hgi-information-circle"></i>
         Important Notices
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
@@ -578,7 +574,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     <?php if (!empty($terms)): ?>
     <div class="card" style="font-size:0.76rem;color:var(--text-sub);line-height:1.7;">
       <div class="card-title" style="margin-bottom:10px;">
-        <i class="hi hi-checkmark-circle"></i>
+        <i class="hgi-stroke hgi-checkmark-circle"></i>
         Terms & Conditions
       </div>
       <ul style="padding-left:16px;display:flex;flex-direction:column;gap:5px;">
@@ -592,18 +588,18 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     <div style="display:flex;flex-direction:column;gap:12px;">
       <?php if ($is_expired): ?>
       <button class="cta-btn expired" disabled>
-        <i class="hi hi-cancel"></i>
+        <i class="hgi-stroke hgi-cancel"></i>
         Offer Expired
       </button>
       <p class="cta-note" style="color: var(--red);">This offer is no longer available</p>
       <?php elseif ($offer['redirect_url']): ?>
       <a href="<?php echo htmlspecialchars($offer['redirect_url']); ?>" target="_blank" class="cta-btn" onclick="openModal()">
-        <i class="hi hi-arrow-up-right"></i>
+        <i class="hgi-stroke hgi-arrow-up-right"></i>
         Claim Now – Go to <?php echo htmlspecialchars($offer['brand_name']); ?>
       </a>
       <?php else: ?>
       <button class="cta-btn" onclick="openModal()">
-        <i class="hi hi-arrow-up-right"></i>
+        <i class="hgi-stroke hgi-arrow-up-right"></i>
         Claim Now – Go to <?php echo htmlspecialchars($offer['brand_name']); ?>
       </button>
       <?php endif; ?>
@@ -616,19 +612,19 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
 <nav class="bottom-nav">
   <a href="index.php" class="nav-item">
-    <i class="hi hi-home"></i>
+    <i class="hgi-stroke hgi-home"></i>
     <span>Home</span>
   </a>
   <div class="nav-item">
-    <i class="hi hi-history"></i>
+    <i class="hgi-stroke hgi-history"></i>
     <span>History</span>
   </a>
   <a href="index.php" class="nav-item active">
-    <i class="hi hi-tag"></i>
+    <i class="hgi-stroke hgi-tag"></i>
     <span>Offers</span>
   </a>
   <div class="nav-item">
-    <i class="hi hi-calendar-02"></i>
+    <i class="hgi-stroke hgi-calendar-02"></i>
     <span>Events</span>
   </div>
 </nav>
@@ -647,7 +643,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
       <button class="modal-confirm" onclick="confirmRedirect()">Yes, Continue →</button>
     </div>
     <div class="modal-tip">
-      <i class="hi hi-information-circle"></i>
+      <i class="hgi-stroke hgi-information-circle"></i>
       Tip: Don't close the browser tab while ordering
     </div>
   </div>

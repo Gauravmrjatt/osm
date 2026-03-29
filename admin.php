@@ -216,11 +216,7 @@ $conn->close();
     --radius: 14px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  .hi { display: inline-block; vertical-align: middle; }
-  .hi-lg { font-size: 24px; }
-  .hi-md { font-size: 20px; }
-  .hi-sm { font-size: 16px; }
-  .hi-xs { font-size: 14px; }
+  .hgi-stroke { display: inline-block; vertical-align: middle; font-size: 20px; }
   body { font-family: 'Mulish', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
 
   .navbar {

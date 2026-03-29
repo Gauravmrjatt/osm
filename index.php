@@ -116,11 +116,7 @@ $conn->close();
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .hi { display: inline-block; vertical-align: middle; }
-  .hi-lg { font-size: 24px; }
-  .hi-md { font-size: 20px; }
-  .hi-sm { font-size: 16px; }
-  .hi-xs { font-size: 14px; }
+  .hgi-stroke { display: inline-block; vertical-align: middle; font-size: 20px; }
 
   body {
     font-family: 'Mulish', sans-serif;
@@ -521,13 +517,13 @@ $conn->close();
   <div class="nav-icons">
     <a href="admin.php" class="admin-link">Admin</a>
     <div class="nav-icon">
-      <i class="hi hi-user-account"></i>
+      <i class="hgi-stroke hgi-user-account"></i>
     </div>
     <div class="nav-icon">
-      <i class="hi hi-notification"></i>
+      <i class="hgi-stroke hgi-notification"></i>
     </div>
     <div class="nav-icon">
-      <i class="hi hi-time"></i>
+      <i class="hgi-stroke hgi-time"></i>
     </div>
   </div>
 </nav>
@@ -538,19 +534,19 @@ $conn->close();
     <aside class="sidebar">
       <div class="sidebar-nav">
         <a href="index.php" class="sidebar-item active">
-          <i class="hi hi-home"></i>
+          <i class="hgi-stroke hgi-home"></i>
           Home
         </a>
         <div class="sidebar-item">
-          <i class="hi hi-tag"></i>
+          <i class="hgi-stroke hgi-tag"></i>
           Offers
         </div>
         <div class="sidebar-item">
-          <i class="hi hi-history"></i>
+          <i class="hgi-stroke hgi-history"></i>
           History
         </div>
         <div class="sidebar-item">
-          <i class="hi hi-setting"></i>
+          <i class="hgi-stroke hgi-setting"></i>
           Account
         </div>
       </div>
@@ -653,7 +649,7 @@ $conn->close();
             <div class="offer-title"><?php echo htmlspecialchars($offer['title']); ?></div>
             <div class="offer-meta">
               <span class="offer-claimed">
-                <i class="hi hi-users"></i>
+                <i class="hgi-stroke hgi-users"></i>
                 <?php echo formatNumber($offer['claimed_count']); ?> claimed
               </span>
               <span class="offer-cashback"><?php echo $cashback_text; ?> cashback</span>
@@ -665,7 +661,7 @@ $conn->close();
             </div>
           </div>
           <div class="offer-arrow">
-            <i class="hi hi-arrow-right"></i>
+            <i class="hgi-stroke hgi-arrow-right"></i>
           </div>
         </a>
         <?php endforeach; ?>
@@ -707,24 +703,24 @@ $conn->close();
 </div>
 
 <div class="fab">
-  <i class="hi hi-grid"></i>
+  <i class="hgi-stroke hgi-grid"></i>
 </div>
 
 <nav class="bottom-nav">
   <a href="index.php" class="nav-item active">
-    <i class="hi hi-home"></i>
+    <i class="hgi-stroke hgi-home"></i>
     <span>Home</span>
   </a>
   <div class="nav-item">
-    <i class="hi hi-history"></i>
+    <i class="hgi-stroke hgi-history"></i>
     <span>History</span>
   </a>
   <a href="admin.php" class="nav-item">
-    <i class="hi hi-tag"></i>
+    <i class="hgi-stroke hgi-tag"></i>
     <span>Offers</span>
   </a>
   <div class="nav-item">
-    <i class="hi hi-calendar-02"></i>
+    <i class="hgi-stroke hgi-calendar-02"></i>
     <span>Events</span>
   </div>
 </nav>
