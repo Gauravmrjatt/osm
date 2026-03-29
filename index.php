@@ -70,7 +70,7 @@ $stats_sql = "SELECT
     COUNT(*) as total_offers,
     SUM(claimed_count) as total_claimed,
     SUM(CASE WHEN expiry_date >= CURDATE() THEN 1 ELSE 0 END) as active_offers,
-    COALESCE(MAX(max_cashback), 0) as max_cashback
+    COALESCE(SUM(max_cashback), 0) as max_cashback
 FROM offers WHERE status = 'active'";
 $stats = $conn->query($stats_sql)->fetch_assoc();
 
