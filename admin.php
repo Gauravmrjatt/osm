@@ -86,6 +86,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $is_verified = isset($_POST['is_verified']) ? 1 : 0;
         $is_popular = isset($_POST['is_popular']) ? 1 : 0;
         $status = in_array($_POST['status'], ['active', 'expired', 'draft']) ? $_POST['status'] : 'active';
+        $payout_type = in_array($_POST['payout_type'] ?? '', ['instant', '24-72h']) ? $_POST['payout_type'] : 'instant';
         
         // Steps
         $steps = [];
@@ -113,8 +114,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($id > 0) {
             // Update existing
-            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, video_file=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, min_amount=?, max_amount=?, expiry_date=?, promo_code=?, redirect_url=?, link2=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
-            $stmt->bind_param("sssssssssssdddddddiiiii", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
+            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, video_file=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, min_amount=?, max_amount=?, expiry_date=?, promo_code=?, redirect_url=?, link2=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=?, payout_type=? WHERE id=?");
+            $stmt->bind_param("sssssssssssdddddddiiiss", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type, $id);
             $stmt->execute();
             
             // Delete old steps and terms
@@ -124,8 +125,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Offer updated successfully.';
         } else {
             // Insert new
-            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, min_amount, max_amount, expiry_date, promo_code, redirect_url, link2, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssssssdddsddssssidiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
+            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, min_amount, max_amount, expiry_date, promo_code, redirect_url, link2, claimed_count, rating, is_featured, is_verified, is_popular, status, payout_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssssdddsddssssidiiiss", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type);
             $stmt->execute();
             $id = $conn->insert_id;
             
@@ -276,6 +277,7 @@ if (isset($_GET['edit']) && $is_logged_in) {
             'is_verified' => 0,
             'is_popular' => 0,
             'status' => 'active',
+            'payout_type' => 'instant',
             'steps' => [],
             'terms' => []
         ];
@@ -750,6 +752,13 @@ $conn->close();
             <option value="expired" <?php echo (isset($edit_offer['status']) && $edit_offer['status'] === 'expired') ? 'selected' : ''; ?>>Expired</option>
             <option value="draft" <?php echo (isset($edit_offer['status']) && $edit_offer['status'] === 'draft') ? 'selected' : ''; ?>>Draft</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>Payout</label>
+          <div class="radio-group">
+            <label><input type="radio" name="payout_type" value="instant" <?php echo (!isset($edit_offer['payout_type']) || $edit_offer['payout_type'] === 'instant') ? 'checked' : ''; ?>> Instant</label>
+            <label><input type="radio" name="payout_type" value="24-72h" <?php echo (isset($edit_offer['payout_type']) && $edit_offer['payout_type'] === '24-72h') ? 'checked' : ''; ?>> 24-72 Hours</label>
+          </div>
         </div>
       </div>
       

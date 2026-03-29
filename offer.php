@@ -469,6 +469,10 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
         <div class="stat-pill"><div class="sv"><?php echo formatNumber($offer['claimed_count']); ?></div><div class="sl">People Claimed</div></div>
         <div class="stat-pill"><div class="sv"><?php echo $offer['rating'] > 0 ? $offer['rating'] . '★' : 'N/A'; ?></div><div class="sl">Avg Rating</div></div>
         <div class="stat-pill"><div class="sv"><?php echo $cashback_display; ?></div><div class="sl">Max Cashback</div></div>
+        <div class="stat-pill" style="background:<?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '#dcfce7' : '#fef3c7'; ?>;">
+          <div class="sv" style="color:<?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '#166534' : '#92400e'; ?>;"><?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '⚡ Instant' : '⏱ 24-72h'; ?></div>
+          <div class="sl">Payout</div>
+        </div>
       </div>
     </div>
 
@@ -507,8 +511,8 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
           </div>
           <div class="tl-body">
             <div class="tl-step-title">Cashback Credited!</div>
-            <div class="tl-step-desc"><?php echo $cashback_display; ?> cashback added to your wallet within 24–48 hours.</div>
-            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> 24–48 hrs</div>
+            <div class="tl-step-desc"><?php echo $cashback_display; ?> cashback added to your wallet within <?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'a few minutes' : '24–48 hours'; ?>.</div>
+            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> <?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'Instant' : '24–48 hrs'; ?></div>
           </div>
         </div>
         <?php else: ?>
@@ -687,7 +691,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
     <p>
       You'll be redirected to <strong><?php echo htmlspecialchars($offer['brand_name']); ?></strong> to complete your order.
       Make sure to log in with your registered phone number so your
-      <strong><?php echo $cashback_display; ?> cashback</strong> is tracked and credited within 24–48 hours.
+      <strong><?php echo $cashback_display; ?> cashback</strong> is tracked and credited within <?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'a few minutes' : '24–48 hours'; ?>.
     </p>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeModal()">Cancel</button>
