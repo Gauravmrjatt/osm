@@ -276,7 +276,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   </div>
   <?php elseif (!empty($offer['logo_image'])): ?>
   <div class="card" style="padding:0;overflow:hidden;">
-    <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;">
+    <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:auto;">
   </div>
   <?php endif; ?>
 
