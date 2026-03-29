@@ -182,17 +182,23 @@ $conn->close();
     scrollbar-width: none;
     padding-bottom: 4px;
     margin-bottom: 20px;
+    animation: scrollBanners 20s linear infinite;
   }
   .banner-scroll::-webkit-scrollbar { display: none; }
+  .banner-scroll:hover { animation-play-state: paused; }
+  @keyframes scrollBanners {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
   .banner-img {
-    width: 280px; height: 140px;
+    width: 300px; height: 150px;
     border-radius: 16px;
     object-fit: cover;
     scroll-snap-align: start;
     flex-shrink: 0;
   }
   @media(min-width: 768px) {
-    .banner-img { width: 400px; height: 180px; }
+    .banner-img { width: 500px; height: 200px; }
   }
 
   .promo-scroll {
@@ -573,6 +579,15 @@ $conn->close();
       <!-- BANNERS -->
       <?php if (!empty($banners)): ?>
       <div class="banner-scroll">
+        <?php foreach ($banners as $banner): ?>
+        <?php if (!empty($banner['link_url'])): ?>
+        <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank">
+          <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" class="banner-img">
+        </a>
+        <?php else: ?>
+        <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" class="banner-img">
+        <?php endif; ?>
+        <?php endforeach; ?>
         <?php foreach ($banners as $banner): ?>
         <?php if (!empty($banner['link_url'])): ?>
         <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank">
