@@ -1,10 +1,31 @@
 <?php
 require_once 'config.php';
 
+// Security Headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
 session_start();
+
+// CSRF Protection
+function generateCSRFToken() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function validateCSRFToken($token) {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
 
 $message = '';
 $message_type = '';
+
+// Generate CSRF token for forms
+$csrf_token = generateCSRFToken();
 
 // Check for success messages from redirects
 if (isset($_GET['msg']) && isset($_GET['type'])) {
@@ -37,6 +58,11 @@ if (isset($_GET['logout'])) {
 
 // Handle form submissions
 if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validate CSRF token for all POST requests
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $message = 'Invalid CSRF token. Please try again.';
+        $message_type = 'error';
+    } else {
     $conn = getDB();
     
     // Delete offer
@@ -44,19 +70,26 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = intval($_POST['offer_id']);
         
         // Get offer to delete associated files
-        $result = $conn->query("SELECT logo_image, video_file FROM offers WHERE id = $id");
+        $stmt = $conn->prepare("SELECT logo_image, video_file FROM offers WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         if ($result && $row = $result->fetch_assoc()) {
-            // Delete logo image
-            if (!empty($row['logo_image']) && file_exists('uploads/' . $row['logo_image'])) {
-                unlink('uploads/' . $row['logo_image']);
+            // Delete logo image - use basename to prevent path traversal
+            $logoFile = basename($row['logo_image']);
+            if (!empty($logoFile) && file_exists('uploads/' . $logoFile)) {
+                unlink('uploads/' . $logoFile);
             }
             // Delete video file
-            if (!empty($row['video_file']) && file_exists('uploads/' . $row['video_file'])) {
-                unlink('uploads/' . $row['video_file']);
+            $videoFile = basename($row['video_file']);
+            if (!empty($videoFile) && file_exists('uploads/' . $videoFile)) {
+                unlink('uploads/' . $videoFile);
             }
         }
         
-        $conn->query("DELETE FROM offers WHERE id = $id");
+        $delStmt = $conn->prepare("DELETE FROM offers WHERE id = ?");
+        $delStmt->bind_param("i", $id);
+        $delStmt->execute();
         $message = 'Offer and associated files deleted successfully.';
         $message_type = 'success';
         header('Location: admin.php?tab=offers');
@@ -126,8 +159,12 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute();
             
             // Delete old steps and terms
-            $conn->query("DELETE FROM offer_steps WHERE offer_id = $id");
-            $conn->query("DELETE FROM offer_terms WHERE offer_id = $id");
+            $delStepsStmt = $conn->prepare("DELETE FROM offer_steps WHERE offer_id = ?");
+            $delStepsStmt->bind_param("i", $id);
+            $delStepsStmt->execute();
+            $delTermsStmt = $conn->prepare("DELETE FROM offer_terms WHERE offer_id = ?");
+            $delTermsStmt->bind_param("i", $id);
+            $delTermsStmt->execute();
             
             $message = 'Offer updated successfully.';
         } else {
@@ -163,6 +200,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: admin.php?tab=offers&msg=' . urlencode($message) . '&type=success');
         exit;
     }
+    } // End CSRF validation
     
     $conn->close();
 }
@@ -208,13 +246,19 @@ if ($is_logged_in && isset($_POST['upload_banner'])) {
 // Delete banner
 if ($is_logged_in && isset($_POST['delete_banner'])) {
     $banner_id = intval($_POST['banner_id']);
-    $result = $conn->query("SELECT image_url FROM banners WHERE id = $banner_id");
+    $stmt = $conn->prepare("SELECT image_url FROM banners WHERE id = ?");
+    $stmt->bind_param("i", $banner_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
     if ($result && $row = $result->fetch_assoc()) {
-        if (!empty($row['image_url']) && file_exists('uploads/' . $row['image_url'])) {
-            unlink('uploads/' . $row['image_url']);
+        $bannerFile = basename($row['image_url']);
+        if (!empty($bannerFile) && file_exists('uploads/' . $bannerFile)) {
+            unlink('uploads/' . $bannerFile);
         }
     }
-    $conn->query("DELETE FROM banners WHERE id = $banner_id");
+    $delBannerStmt = $conn->prepare("DELETE FROM banners WHERE id = ?");
+    $delBannerStmt->bind_param("i", $banner_id);
+    $delBannerStmt->execute();
     $message = 'Banner deleted successfully.';
     $message_type = 'success';
     header('Location: admin.php?tab=banners');
@@ -224,7 +268,9 @@ if ($is_logged_in && isset($_POST['delete_banner'])) {
 // Toggle banner status
 if ($is_logged_in && isset($_POST['toggle_banner'])) {
     $banner_id = intval($_POST['banner_id']);
-    $conn->query("UPDATE banners SET status = IF(status='active','inactive','active') WHERE id = $banner_id");
+    $toggleStmt = $conn->prepare("UPDATE banners SET status = IF(status='active','inactive','active') WHERE id = ?");
+    $toggleStmt->bind_param("i", $banner_id);
+    $toggleStmt->execute();
     header('Location: admin.php?tab=banners');
     exit;
 }
@@ -247,16 +293,25 @@ if (isset($_GET['edit']) && $is_logged_in) {
     $edit_id = intval($_GET['edit']);
     
     if ($edit_id > 0) {
-        $edit_result = $conn->query("SELECT * FROM offers WHERE id = $edit_id");
+        $editStmt = $conn->prepare("SELECT * FROM offers WHERE id = ?");
+        $editStmt->bind_param("i", $edit_id);
+        $editStmt->execute();
+        $edit_result = $editStmt->get_result();
         $edit_offer = $edit_result->fetch_assoc();
         
         if ($edit_offer) {
             // Get steps
-            $steps_result = $conn->query("SELECT * FROM offer_steps WHERE offer_id = $edit_id ORDER BY step_number");
+            $stepsStmt = $conn->prepare("SELECT * FROM offer_steps WHERE offer_id = ? ORDER BY step_number");
+            $stepsStmt->bind_param("i", $edit_id);
+            $stepsStmt->execute();
+            $steps_result = $stepsStmt->get_result();
             $edit_offer['steps'] = $steps_result->fetch_all(MYSQLI_ASSOC);
             
             // Get terms
-            $terms_result = $conn->query("SELECT * FROM offer_terms WHERE offer_id = $edit_id ORDER BY sort_order");
+            $termsStmt = $conn->prepare("SELECT * FROM offer_terms WHERE offer_id = ? ORDER BY sort_order");
+            $termsStmt->bind_param("i", $edit_id);
+            $termsStmt->execute();
+            $terms_result = $termsStmt->get_result();
             $edit_offer['terms'] = $terms_result->fetch_all(MYSQLI_ASSOC);
         }
     } else {
@@ -297,7 +352,9 @@ $edit_category = null;
 // Delete category
 if ($is_logged_in && isset($_POST['delete_category'])) {
     $cat_id = intval($_POST['category_id']);
-    $conn->query("DELETE FROM categories WHERE id = $cat_id");
+    $delCatStmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
+    $delCatStmt->bind_param("i", $cat_id);
+    $delCatStmt->execute();
     $message = 'Category deleted successfully.';
     $message_type = 'success';
     header('Location: admin.php?tab=categories');
@@ -332,7 +389,10 @@ if ($is_logged_in && isset($_POST['save_category'])) {
 // Get category for edit
 if ($is_logged_in && isset($_GET['edit_category'])) {
     $edit_cat_id = intval($_GET['edit_category']);
-    $cat_result = $conn->query("SELECT * FROM categories WHERE id = $edit_cat_id");
+    $catStmt = $conn->prepare("SELECT * FROM categories WHERE id = ?");
+    $catStmt->bind_param("i", $edit_cat_id);
+    $catStmt->execute();
+    $cat_result = $catStmt->get_result();
     $edit_category = $cat_result->fetch_assoc();
 }
 
@@ -477,6 +537,7 @@ $conn->close();
     <div class="message <?php echo $message_type; ?>"><?php echo $message; ?></div>
     <?php endif; ?>
     <form method="post">
+      <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
       <div class="form-group">
         <input type="password" name="password" placeholder="Enter password" required>
       </div>
@@ -517,6 +578,7 @@ $conn->close();
     </div>
     
     <form method="post" enctype="multipart/form-data" style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+      <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
       <div style="display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 12px; align-items: end;">
         <div class="form-group" style="margin: 0;">
           <label>Upload Banner Image</label>
@@ -545,10 +607,12 @@ $conn->close();
           </div>
           <div style="display: flex; gap: 8px;">
             <form method="post" style="flex: 1;">
+              <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
               <input type="hidden" name="banner_id" value="<?php echo $banner['id']; ?>">
               <button type="submit" name="toggle_banner" class="btn btn-secondary btn-sm" style="width: 100%;"><?php echo $banner['status'] === 'active' ? 'Disable' : 'Enable'; ?></button>
             </form>
             <form method="post" onsubmit="return confirm('Delete this banner?');">
+              <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
               <input type="hidden" name="banner_id" value="<?php echo $banner['id']; ?>">
               <button type="submit" name="delete_banner" class="btn btn-danger btn-sm">Delete</button>
             </form>
@@ -575,6 +639,7 @@ $conn->close();
     <?php if ($edit_category !== null || (isset($_GET['edit_category']) && $_GET['edit_category'] == 0)): ?>
     <!-- Add/Edit Category Form -->
     <form method="post" style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+      <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
       <input type="hidden" name="category_id" value="<?php echo $edit_category['id'] ?? 0; ?>">
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
         <div class="form-group" style="margin: 0;">
@@ -614,6 +679,7 @@ $conn->close();
             <div class="action-btns">
               <a href="?tab=categories&edit_category=<?php echo $cat['id']; ?>" class="btn btn-secondary btn-sm">Edit</a>
               <form method="post" style="display:inline;" onsubmit="return confirm('Delete this category?');">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <input type="hidden" name="category_id" value="<?php echo $cat['id']; ?>">
                 <input type="hidden" name="tab" value="categories">
                 <button type="submit" name="delete_category" class="btn btn-danger btn-sm">Delete</button>
@@ -635,6 +701,7 @@ $conn->close();
     </div>
     
     <form method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
       <input type="hidden" name="offer_id" value="<?php echo $edit_offer['id'] ?? 0; ?>">
       
       <h3 style="font-size: 0.9rem; font-weight: 700; color: var(--text-sub); margin-bottom: 12px;">Basic Info</h3>
@@ -909,6 +976,7 @@ $conn->close();
             <div class="action-btns">
               <a href="?tab=offers&edit=<?php echo $offer['id']; ?>" class="btn btn-secondary btn-sm">Edit</a>
               <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this offer?');">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <input type="hidden" name="offer_id" value="<?php echo $offer['id']; ?>">
                 <input type="hidden" name="tab" value="offers">
                 <button type="submit" name="delete_offer" class="btn btn-danger btn-sm">Delete</button>
@@ -953,6 +1021,7 @@ function uploadFile(input, type) {
     progressText.textContent = 'Uploading... 0%';
     
     const formData = new FormData();
+    formData.append('csrf_token', '<?php echo $csrf_token; ?>');
     if (type === 'logo') {
         formData.append('logo_image', file);
     } else {

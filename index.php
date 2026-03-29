@@ -1,5 +1,12 @@
 <?php
 require_once 'config.php';
+
+// Security Headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
 session_start();
 
 $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
@@ -82,6 +89,10 @@ $conn->close();
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1E6BFF" />
+  <meta name="description" content="Browse offers and earn cashback" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231E6BFF' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white' font-family='system-ui'>$</text></svg>" />
   <title>OSM – Offers & Cashback</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -751,6 +762,12 @@ $conn->close();
         scroll.scrollTo({ left: banners[current].offsetLeft - 16, top: 0, behavior: 'smooth' });
       }, 3000);
     })();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
   </script>
 
 </body>

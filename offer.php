@@ -1,5 +1,12 @@
 <?php
 require_once 'config.php';
+
+// Security Headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
 session_start();
 
 $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true;
@@ -46,6 +53,10 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#1E6BFF" />
+<meta name="description" content="<?php echo htmlspecialchars($offer['title']); ?>" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231E6BFF' width='100' height='100' rx='20'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white' font-family='system-ui'>$</text></svg>" />
 <title>OSM – <?php echo htmlspecialchars($offer['title']); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -475,6 +486,11 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
     navigator.clipboard.writeText(code).then(() => {
       alert('Code copied: ' + code);
     });
+  }
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
   }
 </script>
 </body>

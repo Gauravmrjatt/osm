@@ -1,6 +1,16 @@
 <?php
 require_once 'config.php';
 
+// Security Headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+
+// Admin authentication check
+session_start();
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    die('Unauthorized access');
+}
+
 $conn = getDB();
 
 // Add logo_image column if it doesn't exist
