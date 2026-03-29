@@ -35,8 +35,22 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Delete offer
     if (isset($_POST['delete_offer'])) {
         $id = intval($_POST['offer_id']);
+        
+        // Get offer to delete associated files
+        $result = $conn->query("SELECT logo_image, video_file FROM offers WHERE id = $id");
+        if ($result && $row = $result->fetch_assoc()) {
+            // Delete logo image
+            if (!empty($row['logo_image']) && file_exists('uploads/' . $row['logo_image'])) {
+                unlink('uploads/' . $row['logo_image']);
+            }
+            // Delete video file
+            if (!empty($row['video_file']) && file_exists('uploads/' . $row['video_file'])) {
+                unlink('uploads/' . $row['video_file']);
+            }
+        }
+        
         $conn->query("DELETE FROM offers WHERE id = $id");
-        $message = 'Offer deleted successfully.';
+        $message = 'Offer and associated files deleted successfully.';
         $message_type = 'success';
     }
     
