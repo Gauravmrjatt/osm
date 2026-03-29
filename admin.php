@@ -130,22 +130,16 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->query("DELETE FROM offer_terms WHERE offer_id = $id");
             
             $message = 'Offer updated successfully.';
-            header('Location: admin.php?tab=offers&msg=' . urlencode($message) . '&type=success');
-            exit;
         } else {
             // Insert new
             $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, min_amount, max_amount, expiry_date, promo_code, redirect_url, link2, claimed_count, rating, is_featured, is_verified, is_popular, status, payout_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssssssdddsddssssidiiiss", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $min_order_amount, $max_cashback, $expiry_date, $promo_code, $redirect_url, $link2, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $payout_type);
             $stmt->execute();
             $id = $conn->insert_id;
-            
             $message = 'Offer created successfully.';
-            $message_type = 'success';
-            header('Location: admin.php?tab=offers&msg=' . urlencode($message) . '&type=success');
-            exit;
         }
         
-        // Insert steps
+        // Insert steps (for both update and insert)
         foreach ($steps as $i => $step) {
             $step_num = $i + 1;
             $step_title = $step['title'];
@@ -166,7 +160,7 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $message_type = 'success';
-        header('Location: admin.php?tab=offers');
+        header('Location: admin.php?tab=offers&msg=' . urlencode($message) . '&type=success');
         exit;
     }
     
