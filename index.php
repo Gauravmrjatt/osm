@@ -568,8 +568,8 @@ $conn->close();
       <div class="banners-scroll" style="display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px;">
         <?php foreach ($banners as $banner): ?>
           <?php if (!empty($banner['image_url'])): ?>
-            <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 auto; display: block;">
-              <img src="/uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="height: 80px; border-radius: 14px; object-fit: cover;">
+            <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 calc(100vw - 32px); display: block; width: calc(100vw - 32px); max-width: 400px;">
+              <img src="/uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="width: 100%; height: 100px; border-radius: 14px; object-fit: cover;">
             </a>
           <?php endif; ?>
         <?php endforeach; ?>
