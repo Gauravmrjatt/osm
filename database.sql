@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS offers (
     brand_name VARCHAR(100),
     brand_emoji VARCHAR(10) DEFAULT '🎁',
     logo_image VARCHAR(255) DEFAULT '',
+    video_file VARCHAR(255) DEFAULT '',
     category VARCHAR(50) DEFAULT 'General',
     min_order_amount DECIMAL(10,2) DEFAULT 0,
     max_cashback DECIMAL(10,2) DEFAULT 0,

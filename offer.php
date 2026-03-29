@@ -372,24 +372,28 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
     <div class="carousel-wrap">
       <div class="carousel-track" id="track">
-        <?php if (empty($images)): ?>
+        <?php if (!empty($offer['video_file'])): ?>
         <div class="carousel-slide s1">
-          <?php if (!empty($offer['logo_image'])): ?>
-          <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
-          <?php else: ?>
-          <?php echo htmlspecialchars($offer['brand_emoji']); ?>
-          <?php endif; ?>
+          <video width="100%" height="100%" style="object-fit:contain;background:#000;" autoplay muted loop playsinline>
+            <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
+          </video>
           <div class="carousel-deco"><?php echo $cashback_display; ?></div>
           <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
         </div>
-        <?php else: ?>
-          <?php foreach ($images as $index => $img): ?>
-          <div class="carousel-slide s<?php echo ($index % 4) + 1; ?>">
-            <?php echo htmlspecialchars($img['image_url']); ?>
-            <div class="carousel-deco"><?php echo $cashback_display; ?></div>
-            <div class="slide-label"><?php echo htmlspecialchars($img['image_label'] ?? $offer['title']); ?></div>
-          </div>
-          <?php endforeach; ?>
+        <?php endif; ?>
+        <?php if (!empty($offer['logo_image'])): ?>
+        <div class="carousel-slide s2">
+          <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
+          <div class="carousel-deco"><?php echo $cashback_display; ?></div>
+          <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
+        </div>
+        <?php endif; ?>
+        <?php if (empty($offer['video_file']) && empty($offer['logo_image'])): ?>
+        <div class="carousel-slide s1">
+          <?php echo htmlspecialchars($offer['brand_emoji']); ?>
+          <div class="carousel-deco"><?php echo $cashback_display; ?></div>
+          <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
+        </div>
         <?php endif; ?>
       </div>
       <button class="c-prev" onclick="slide(-1)">
@@ -399,7 +403,12 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
         <i class="hgi-stroke hgi-arrow-right"></i>
       </button>
       <div class="c-dots" id="dots">
-        <?php $totalSlides = count($images) ?: 1; ?>
+        <?php 
+        $totalSlides = 0;
+        if (!empty($offer['video_file'])) $totalSlides++;
+        if (!empty($offer['logo_image'])) $totalSlides++;
+        if ($totalSlides == 0) $totalSlides = 1;
+        ?>
         <?php for ($i = 0; $i < $totalSlides; $i++): ?>
         <div class="c-dot <?php echo $i === 0 ? 'active' : ''; ?>" onclick="goTo(<?php echo $i; ?>)"></div>
         <?php endfor; ?>

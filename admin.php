@@ -65,6 +65,22 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
+        // Handle video upload
+        $video_file = $_POST['existing_video'] ?? '';
+        if (!empty($_FILES['video_file']['name'])) {
+            $upload_dir = 'uploads/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            $ext = pathinfo($_FILES['video_file']['name'], PATHINFO_EXTENSION);
+            $new_filename = time() . '_' . rand(1000, 9999) . '.' . $ext;
+            $target_path = $upload_dir . $new_filename;
+            
+            if (move_uploaded_file($_FILES['video_file']['tmp_name'], $target_path)) {
+                $video_file = $new_filename;
+            }
+        }
+        
         $category = $_POST['category'];
         $min_order_amount = floatval($_POST['min_order_amount']);
         $max_cashback = floatval($_POST['max_cashback']);
@@ -106,8 +122,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($id > 0) {
             // Update existing
-            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
-            $stmt->bind_param("ssssssdddssssidiiisi", $title, $description, $brand_name, $brand_emoji, $logo_image, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
+            $stmt = $conn->prepare("UPDATE offers SET title=?, description=?, brand_name=?, brand_emoji=?, logo_image=?, video_file=?, category=?, min_order_amount=?, max_cashback=?, cashback_rate=?, cashback_type=?, expiry_date=?, promo_code=?, redirect_url=?, claimed_count=?, rating=?, is_featured=?, is_verified=?, is_popular=?, status=? WHERE id=?");
+            $stmt->bind_param("sssssssdddssssidiiisi", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status, $id);
             $stmt->execute();
             
             // Delete old steps and terms
@@ -117,8 +133,8 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Offer updated successfully.';
         } else {
             // Insert new
-            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssssdddssssidiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
+            $stmt = $conn->prepare("INSERT INTO offers (title, description, brand_name, brand_emoji, logo_image, video_file, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, redirect_url, claimed_count, rating, is_featured, is_verified, is_popular, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssssdddssssidiiis", $title, $description, $brand_name, $brand_emoji, $logo_image, $video_file, $category, $min_order_amount, $max_cashback, $cashback_rate, $cashback_type, $expiry_date, $promo_code, $redirect_url, $claimed_count, $rating, $is_featured, $is_verified, $is_popular, $status);
             $stmt->execute();
             $id = $conn->insert_id;
             
@@ -395,6 +411,19 @@ $conn->close();
           <?php endif; ?>
           <input type="file" name="logo_image" accept="image/*">
           <small style="color: var(--text-sub);">Leave empty to keep existing logo</small>
+        </div>
+        <div class="form-group">
+          <label>Promo Video (MP4/WebM)</label>
+          <?php if (!empty($edit_offer['video_file'])): ?>
+          <div style="margin-bottom: 8px;">
+            <video width="120" height="80" style="object-fit:contain;border-radius:8px;border:1px solid #ddd;" controls>
+              <source src="uploads/<?php echo htmlspecialchars($edit_offer['video_file']); ?>" type="video/mp4">
+            </video>
+            <input type="hidden" name="existing_video" value="<?php echo htmlspecialchars($edit_offer['video_file']); ?>">
+          </div>
+          <?php endif; ?>
+          <input type="file" name="video_file" accept="video/mp4,video/webm">
+          <small style="color: var(--text-sub);">Leave empty to keep existing video</small>
         </div>
         <div class="form-group">
           <label>Category</label>
