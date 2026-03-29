@@ -387,11 +387,15 @@ $conn->close();
   .offer-arrow svg { width: 16px; height: 16px; }
 
   .expire-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
     gap: 14px;
     margin-bottom: 40px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 10px;
   }
+  .expire-grid::-webkit-scrollbar { display: none; }
   .expire-card {
     background: linear-gradient(135deg, #ffcba4 0%, #ff8c69 100%);
     border-radius: var(--radius-sm);
@@ -399,13 +403,16 @@ $conn->close();
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     text-align: center;
-    min-height: 120px;
+    min-height: 140px;
+    width: 160px;
+    flex-shrink: 0;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
     transition: transform 0.25s, box-shadow 0.25s;
     position: relative; overflow: hidden;
     text-decoration: none; color: inherit;
     animation: fadeUp 0.4s ease both;
+    scroll-snap-align: start;
   }
   .expire-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
   .expire-card:nth-child(1) { animation-delay: 0.3s; }
@@ -510,7 +517,8 @@ $conn->close();
 
     .main-content { flex: 1; min-width: 0; }
     .offers-list { gap: 10px; }
-    .expire-grid { grid-template-columns: repeat(3, 1fr); }
+    .expire-grid { gap: 12px; }
+    .expire-card { width: 180px; min-height: 150px; }
     .stats-bar { grid-template-columns: repeat(3, 1fr); }
   }
 
@@ -521,7 +529,9 @@ $conn->close();
     .navbar { padding: 0 16px; }
     .page-wrap { padding: 20px 14px 90px; }
     .promo-card { min-width: 260px; }
-    .expire-grid { grid-template-columns: 1fr; }
+    .expire-grid { gap: 10px; }
+    .expire-card { width: 140px; min-height: 130px; padding: 14px 10px; }
+    .expire-text { font-size: 0.65rem; }
     .stats-bar { grid-template-columns: 1fr; }
   }
 
