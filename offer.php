@@ -7,7 +7,6 @@ $is_admin = isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] 
 $conn = getDB();
 $offer_id = $_GET['id'] ?? 0;
 
-// Get offer details
 $stmt = $conn->prepare("SELECT * FROM offers WHERE id = ?");
 $stmt->bind_param("i", $offer_id);
 $stmt->execute();
@@ -18,17 +17,6 @@ if (!$offer) {
     exit;
 }
 
-// Get offer images
-$images = [];
-$img_stmt = $conn->prepare("SELECT * FROM offer_images WHERE offer_id = ? ORDER BY sort_order");
-$img_stmt->bind_param("i", $offer_id);
-$img_stmt->execute();
-$img_result = $img_stmt->get_result();
-while ($row = $img_result->fetch_assoc()) {
-    $images[] = $row;
-}
-
-// Get offer steps
 $steps = [];
 $steps_stmt = $conn->prepare("SELECT * FROM offer_steps WHERE offer_id = ? ORDER BY step_number");
 $steps_stmt->bind_param("i", $offer_id);
@@ -38,7 +26,6 @@ while ($row = $steps_result->fetch_assoc()) {
     $steps[] = $row;
 }
 
-// Get offer terms
 $terms = [];
 $terms_stmt = $conn->prepare("SELECT * FROM offer_terms WHERE offer_id = ? ORDER BY sort_order");
 $terms_stmt->bind_param("i", $offer_id);
@@ -50,11 +37,9 @@ while ($row = $terms_result->fetch_assoc()) {
 
 $conn->close();
 
-// Calculate values
 $is_expired = isExpired($offer['expiry_date']);
 $days_left = getDaysRemaining($offer['expiry_date']);
 $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($offer['max_cashback']) : $offer['cashback_rate'] . '%';
-$totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 1 : 1;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,25 +49,21 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
 <title>OSM – <?php echo htmlspecialchars($offer['title']); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css"/>
 <style>
   :root {
-    --primary: #4f46e5;
-    --primary-light: #eef2ff;
-    --accent: #6366f1;
-    --green: #10b981;
-    --green-light: #d1fae5;
-    --red: #ef4444;
-    --orange: #f97316;
-    --text: #1e1b4b;
-    --text-sub: #6b7280;
-    --bg: #f5f6fa;
-    --card: #ffffff;
-    --shadow-sm: 0 2px 8px rgba(79,70,229,0.07);
-    --shadow-md: 0 6px 24px rgba(79,70,229,0.13);
-    --shadow-lg: 0 16px 48px rgba(79,70,229,0.18);
-    --radius: 22px;
+    --bg-dark: #05070A;
+    --bg-card: #0B0F14;
+    --primary: #1E6BFF;
+    --primary-light: #3EA6FF;
+    --green: #00D26A;
+    --text: #FFFFFF;
+    --text-sub: #9AA4B2;
+    --border: rgba(255,255,255,0.08);
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --glow: 0 0 10px rgba(30,107,255,0.5);
+    --radius: 18px;
     --radius-sm: 14px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -90,646 +71,392 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   .hgi-stroke { display: inline-block; vertical-align: middle; font-size: 20px; }
 
   body {
-    font-family: 'Mulish', sans-serif;
-    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-card) 100%);
     color: var(--text);
     min-height: 100vh;
   }
 
   .navbar {
     position: sticky; top: 0; z-index: 200;
-    background: rgba(255,255,255,0.93);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(79,70,229,0.08);
-    height: 62px;
+    background: rgba(11, 15, 20, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    height: 60px;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 20px;
-    box-shadow: 0 2px 12px rgba(79,70,229,0.07);
+    padding: 0 16px;
   }
-  .logo { font-family:'Nunito',sans-serif; font-weight:900; font-size:1.55rem; color:var(--primary); letter-spacing:-0.5px; }
-  .logo span { color:var(--text); }
+  .logo { font-family:'Inter',sans-serif; font-weight:800; font-size:1.3rem; letter-spacing:-0.5px; }
+  .logo span { color:var(--primary-light); }
   .back-btn {
     display:flex; align-items:center; gap:8px;
-    background: var(--primary-light); color:var(--primary);
+    background: rgba(255,255,255,0.08); color:var(--text);
     border:none; border-radius:12px; padding:8px 14px;
-    font-family:'Mulish',sans-serif; font-size:0.82rem; font-weight:600;
+    font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600;
     cursor:pointer; transition:all 0.2s; text-decoration:none;
   }
-  .back-btn:hover { background:var(--primary); color:#fff; }
-  .back-btn svg { width:15px; height:15px; }
+  .back-btn:hover { background: var(--primary); color:#fff; }
+  .back-btn svg { width:16px; height:16px; }
 
   .page {
-    max-width: 980px;
+    max-width: 600px;
     margin: 0 auto;
-    padding: 20px 16px 130px;
-    display: grid;
-    grid-template-columns: 1fr;
+    padding: 16px;
+    padding-bottom: 120px;
+    display: flex;
+    flex-direction: column;
     gap: 16px;
   }
-  @media(min-width:768px) {
-    .page { grid-template-columns: 1fr 380px; padding: 36px 28px 60px; gap: 28px; }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--border);
   }
 
-  .carousel-wrap { position:relative; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md); background:#000; }
-  .carousel-wrap video { width: 100%; height: 280px; object-fit: contain; background: #000; }
-  .carousel-wrap video::-webkit-media-controls { display: flex !important; }
-  .carousel-wrap video::-webkit-media-controls-enclosure { display: flex !important; }
-  @media(min-width:768px) { .carousel-wrap video { height: 350px; } }
-  .carousel-track { display:flex; transition:transform 0.45s cubic-bezier(.4,0,.2,1); }
-  .carousel-slide {
-    flex:0 0 100%; height:260px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:5rem;
-    position:relative; overflow:hidden;
-  }
-  .carousel-slide.s1 { background:linear-gradient(135deg,#fff5f5 0%,#ffd6c8 100%); }
-  .carousel-slide.s2 { background:linear-gradient(135deg,#fff8e6 0%,#fde68a 100%); }
-  .carousel-slide.s3 { background:linear-gradient(135deg,#f0fdf4 0%,#bbf7d0 100%); }
-  .carousel-slide.s4 { background:linear-gradient(135deg,#eff6ff 0%,#bfdbfe 100%); }
-  .carousel-slide .slide-label {
-    position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
-    background:rgba(255,255,255,0.75); backdrop-filter:blur(8px);
-    border-radius:20px; padding:5px 16px;
-    font-size:0.72rem; font-weight:700; color:var(--text);
-    white-space:nowrap;
-  }
-  .carousel-deco {
-    position:absolute; top:14px; right:14px;
-    background:var(--primary); color:#fff;
-    font-family:'Nunito',sans-serif; font-weight:800; font-size:0.75rem;
-    padding:4px 12px; border-radius:20px;
-    box-shadow:0 4px 12px rgba(79,70,229,0.35);
-  }
-
-  .c-prev, .c-next {
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:36px; height:36px; border-radius:50%;
-    background:rgba(255,255,255,0.85); backdrop-filter:blur(6px);
-    border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    box-shadow:var(--shadow-sm); color:var(--text); transition:all 0.2s; z-index:10;
-  }
-  .c-prev { left:12px; } .c-next { right:12px; }
-  .c-prev:hover, .c-next:hover { background:var(--primary); color:#fff; }
-  .c-prev svg, .c-next svg { width:16px; height:16px; }
-
-  .c-dots { display:flex; justify-content:center; gap:7px; padding:12px 0 6px; }
-  .c-dot { width:8px; height:8px; border-radius:50%; background:rgba(79,70,229,0.2); cursor:pointer; transition:all 0.2s; }
-  .c-dot.active { width:22px; border-radius:4px; background:var(--primary); }
-
-  .brand-row {
-    display:flex; align-items:center; gap:14px;
-    background:#fff; border-radius:var(--radius-sm);
-    padding:16px 18px; box-shadow:var(--shadow-sm);
-  }
-  .brand-logo {
-    width:54px; height:54px; border-radius:14px;
-    background:#fff5f5; display:flex; align-items:center; justify-content:center;
-    font-size:2rem; flex-shrink:0;
-    box-shadow:0 2px 10px rgba(0,0,0,0.08);
-  }
-  .brand-info h2 { font-family:'Nunito',sans-serif; font-weight:900; font-size:1.2rem; color:var(--text); }
-  .brand-info p { font-size:0.75rem; color:var(--text-sub); margin-top:2px; }
-  .brand-badges { margin-left:auto; display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
-  .badge { font-size:0.68rem; font-weight:700; padding:3px 10px; border-radius:20px; }
-  .badge.green { background:var(--green-light); color:var(--green); }
-  .badge.blue  { background:var(--primary-light); color:var(--primary); }
-  .badge.red { background:#fee2e2; color:var(--red); }
-
-  .card { background:#fff; border-radius:var(--radius-sm); padding:20px 20px; box-shadow:var(--shadow-sm); }
-  .card-title { font-family:'Nunito',sans-serif; font-weight:800; font-size:0.95rem; color:var(--text); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-  .card-title svg { width:18px; height:18px; color:var(--primary); }
-
-  .desc-text { font-size:0.86rem; color:var(--text-sub); line-height:1.75; }
-  .desc-text strong { color:var(--text); font-weight:700; }
-
-  .timeline { display:flex; flex-direction:column; gap:0; }
-  .tl-item { display:flex; gap:16px; position:relative; }
-  .tl-left { display:flex; flex-direction:column; align-items:center; width:36px; flex-shrink:0; }
-  .tl-dot {
-    width:36px; height:36px; border-radius:50%;
-    background:var(--primary-light); color:var(--primary);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Nunito',sans-serif; font-weight:900; font-size:0.85rem;
-    flex-shrink:0; position:relative; z-index:1;
-    border:2px solid var(--primary);
-    transition:all 0.3s;
-  }
-  .tl-item.done .tl-dot { background:var(--primary); color:#fff; }
-  .tl-line { width:2px; flex:1; background:linear-gradient(to bottom, var(--primary) 0%, rgba(79,70,229,0.15) 100%); min-height:28px; margin:4px 0; }
-  .tl-item:last-child .tl-line { display:none; }
-  .tl-body { padding-bottom:24px; flex:1; }
-  .tl-step-title { font-weight:700; font-size:0.9rem; color:var(--text); margin-bottom:4px; }
-  .tl-step-desc { font-size:0.78rem; color:var(--text-sub); line-height:1.55; }
-  .tl-time {
-    display:inline-flex; align-items:center; gap:4px;
-    background:var(--primary-light); color:var(--primary);
-    font-size:0.68rem; font-weight:700;
-    padding:2px 9px; border-radius:10px; margin-top:6px;
-  }
-  .tl-time svg { width:11px; height:11px; }
-
-  .amount-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .amount-cell {
-    background:linear-gradient(135deg,var(--primary-light),#e0e7ff);
-    border-radius:var(--radius-sm); padding:16px 14px; text-align:center;
-  }
-  .amount-cell.green-cell { background:linear-gradient(135deg,var(--green-light),#a7f3d0); }
-  .amount-cell .ac-label { font-size:0.7rem; font-weight:600; color:var(--text-sub); margin-bottom:6px; }
-  .amount-cell .ac-value { font-family:'Nunito',sans-serif; font-weight:900; font-size:1.45rem; color:var(--text); }
-  .amount-cell .ac-sub { font-size:0.68rem; color:var(--text-sub); margin-top:3px; }
-
-  .payment-timeline {
-    margin-top:16px;
-    background: linear-gradient(90deg,var(--primary-light) 0%,#e0e7ff 100%);
-    border-radius:12px; padding:14px 16px;
-    display:flex; align-items:center; gap:0;
-    position:relative; overflow:hidden;
-  }
-  .pt-step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
-  .pt-icon { width:32px; height:32px; border-radius:50%; background:#fff; box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; font-size:1rem; margin-bottom:5px; }
-  .pt-label { font-size:0.62rem; font-weight:700; color:var(--text); text-align:center; line-height:1.3; }
-  .pt-time { font-size:0.6rem; color:var(--primary); font-weight:600; }
-  .pt-connector { flex:1; height:2px; background:linear-gradient(90deg,var(--primary),var(--accent)); align-self:center; margin-bottom:22px; }
-
-  .alert-box {
-    border-radius:var(--radius-sm); padding:14px 16px;
-    display:flex; gap:12px; align-items:flex-start;
-    border:1.5px solid;
-  }
-  .alert-box.info { background:#eff6ff; border-color:#bfdbfe; }
-  .alert-box.warn { background:#fffbeb; border-color:#fde68a; }
-  .alert-box.success { background:#f0fdf4; border-color:#bbf7d0; }
-  .alert-icon { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
-  .alert-box.info .alert-icon { background:#dbeafe; }
-  .alert-box.warn .alert-icon { background:#fef9c3; }
-  .alert-box.success .alert-icon { background:#dcfce7; }
-  .alert-content h4 { font-size:0.82rem; font-weight:700; color:var(--text); margin-bottom:2px; }
-  .alert-content p { font-size:0.75rem; color:var(--text-sub); line-height:1.5; }
-
-  .cta-btn {
-    width:100%; padding:17px; border:none; border-radius:var(--radius-sm);
-    background:linear-gradient(135deg,#4f46e5 0%,#6366f1 100%);
-    color:#fff; font-family:'Nunito',sans-serif; font-weight:900; font-size:1.05rem;
-    cursor:pointer; box-shadow:0 6px 20px rgba(79,70,229,0.4);
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    transition:all 0.25s; letter-spacing:0.2px;
-    position:relative; overflow:hidden;
-    text-decoration: none;
-  }
-  .cta-btn::after {
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
-    opacity:0; transition:opacity 0.2s;
-  }
-  .cta-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(79,70,229,0.5); }
-  .cta-btn:hover::after { opacity:1; }
-  .cta-btn svg { width:20px; height:20px; }
-  .cta-btn.expired { background: linear-gradient(135deg,#9ca3af,#6b7280); cursor: not-allowed; }
-
-  .cta-note { text-align:center; font-size:0.72rem; color:var(--text-sub); margin-top:8px; }
-
-  .mobile-fixed-cta {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    left: 12px;
-    right: 12px;
-    z-index: 150;
-    padding: 14px 20px;
-    background: linear-gradient(135deg,#4f46e5 0%,#6366f1 100%);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 1rem;
-    box-shadow: 0 6px 24px rgba(79,70,229,0.5);
-    cursor: pointer;
+  .card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
     align-items: center;
-    justify-content: center;
     gap: 8px;
   }
-  .mobile-cta-row {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    left: 12px;
-    right: 12px;
-    z-index: 150;
-    gap: 10px;
-  }
-  .mobile-cta-row .mobile-fixed-cta {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    right: auto;
-    flex: 1;
-  }
-  @media(max-width: 767px) {
-    .mobile-cta-row { display: flex; }
-    .mobile-cta-row .mobile-fixed-cta { display: flex; }
-    .mobile-fixed-cta { display: none; }
-    .page { padding-bottom: 80px; }
-    .desktop-cta { display: none !important; }
-  }
-  .cta-note span { color:var(--primary); font-weight:600; }
+  .card-title svg { width:18px; height:18px; color:var(--primary-light); }
 
-  .stats-row { display:flex; gap:10px; }
-  .stat-pill {
-    flex:1; background:#fff; border-radius:12px; padding:12px 8px; text-align:center;
-    box-shadow:var(--shadow-sm);
+  .brand-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid var(--border);
   }
-  .stat-pill .sv { font-family:'Nunito',sans-serif; font-weight:900; font-size:1.1rem; color:var(--primary); }
-  .stat-pill .sl { font-size:0.65rem; color:var(--text-sub); margin-top:2px; }
+  .brand-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; flex-shrink:0;
+  }
+  .brand-logo img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
+  .brand-info h2 { font-weight: 700; font-size: 1.1rem; color: var(--text); }
+  .brand-info p { font-size:0.72rem; color:var(--text-sub); margin-top:3px; }
+  .brand-badges { margin-left:auto; display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
+  .badge { font-size:0.62rem; font-weight:700; padding:3px 10px; border-radius:8px; }
+  .badge.green { background:rgba(0,210,106,0.12); color:var(--green); }
+  .badge.blue { background:rgba(30,107,255,0.12); color:var(--primary-light); }
+  .badge.red { background:rgba(239,68,68,0.12); color:#ef4444; }
+
+  .desc-text { font-size:0.82rem; color:var(--text-sub); line-height:1.7; }
+
+  .stats-row { display:flex; gap:10px; margin-top:16px; }
+  .stat-pill {
+    flex:1; background:rgba(255,255,255,0.04); border-radius:12px; padding:12px 8px; text-align:center;
+    border: 1px solid var(--border);
+  }
+  .stat-pill .sv { font-weight:800; font-size:1rem; color:var(--primary-light); }
+  .stat-pill .sl { font-size:0.6rem; color:var(--text-sub); margin-top:2px; }
+
+  .timeline { display:flex; flex-direction:column; gap:0; }
+  .tl-item { display:flex; gap:14px; position:relative; }
+  .tl-left { display:flex; flex-direction:column; align-items:center; width:32px; flex-shrink:0; }
+  .tl-dot {
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(30,107,255,0.15); color:var(--primary-light);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:0.8rem; flex-shrink:0;
+    border:2px solid var(--primary);
+  }
+  .tl-item.done .tl-dot { background:var(--primary); color:#fff; }
+  .tl-line { width:2px; flex:1; background:rgba(30,107,255,0.2); min-height:20px; margin:4px 0; }
+  .tl-item:last-child .tl-line { display:none; }
+  .tl-body { padding-bottom:20px; flex:1; }
+  .tl-step-title { font-weight:600; font-size:0.85rem; color:var(--text); margin-bottom:3px; }
+  .tl-step-desc { font-size:0.72rem; color:var(--text-sub); line-height:1.5; }
+  .tl-time {
+    display:inline-flex; align-items:center; gap:4px;
+    background:rgba(30,107,255,0.1); color:var(--primary-light);
+    font-size:0.62rem; font-weight:600;
+    padding:2px 8px; border-radius:6px; margin-top:6px;
+  }
+  .tl-time svg { width:10px; height:10px; }
+
+  .terms-list { font-size:0.72rem; color:var(--text-sub); line-height:1.8; }
+  .terms-list li { margin-bottom:6px; padding-left:4px; }
+
+  .cta-btn {
+    width:100%; padding:16px; border:none; border-radius:14px;
+    background:linear-gradient(135deg, var(--primary), var(--primary-light));
+    color:#fff; font-family:'Inter',sans-serif; font-weight:700; font-size:0.95rem;
+    cursor:pointer; box-shadow:var(--glow);
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    transition:all 0.25s; text-decoration:none;
+  }
+  .cta-btn:hover { transform:translateY(-2px); box-shadow:0 6px 24px rgba(30,107,255,0.5); }
+  .cta-btn svg { width:18px; height:18px; }
+  .cta-btn.expired { background: linear-gradient(135deg,#4b5563,#6b7280); cursor: not-allowed; }
+
+  .cta-note { text-align:center; font-size:0.68rem; color:var(--text-sub); margin-top:8px; }
+  .cta-note span { color:var(--primary-light); font-weight:600; }
+
+  .promo-code {
+    background:rgba(30,107,255,0.1); border:1px dashed rgba(30,107,255,0.3);
+    border-radius:10px; padding:12px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:12px;
+  }
+  .promo-code-label { font-size:0.65rem; color:var(--text-sub); }
+  .promo-code-value { font-weight:800; font-size:1.1rem; color:var(--primary-light); letter-spacing:1px; }
+  .copy-btn {
+    background:var(--primary); color:#fff; border:none;
+    padding:6px 12px; border-radius:6px;
+    font-size:0.7rem; font-weight:600; cursor:pointer;
+  }
 
   .modal-overlay {
     position:fixed; inset:0; z-index:1000;
-    background:rgba(30,27,75,0.55); backdrop-filter:blur(6px);
+    background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);
     display:none; align-items:center; justify-content:center; padding:20px;
   }
   .modal-overlay.open { display:flex; }
   .modal {
-    background:#fff; border-radius:24px; max-width:420px; width:100%;
-    padding:32px 28px; text-align:center;
-    box-shadow:0 24px 80px rgba(79,70,229,0.25);
-    animation:popIn 0.3s cubic-bezier(.4,0,.2,1) both;
+    background:var(--bg-card); border-radius:24px; max-width:400px; width:100%;
+    padding:28px; text-align:center;
+    border: 1px solid var(--border);
+    animation:popIn 0.3s cubic-bezier(.4,0,.2,1);
   }
-  @keyframes popIn { from{transform:scale(0.88) translateY(20px);opacity:0;} to{transform:scale(1) translateY(0);opacity:1;} }
-  .modal-icon { font-size:3.2rem; margin-bottom:16px; }
-  .modal h3 { font-family:'Nunito',sans-serif; font-weight:900; font-size:1.3rem; color:var(--text); margin-bottom:10px; }
-  .modal p { font-size:0.85rem; color:var(--text-sub); line-height:1.7; margin-bottom:22px; }
-  .modal-actions { display:flex; gap:12px; }
+  @keyframes popIn { from{transform:scale(0.9);opacity:0;} to{transform:scale(1);opacity:1;} }
+  .modal-icon { font-size:2.5rem; margin-bottom:12px; }
+  .modal h3 { font-weight:700; font-size:1.2rem; color:var(--text); margin-bottom:8px; }
+  .modal p { font-size:0.8rem; color:var(--text-sub); line-height:1.6; margin-bottom:20px; }
+  .modal-actions { display:flex; gap:10px; }
   .modal-cancel {
-    flex:1; padding:13px; border:1.5px solid rgba(79,70,229,0.25);
-    border-radius:14px; background:#fff; color:var(--text-sub);
-    font-family:'Mulish',sans-serif; font-weight:600; font-size:0.88rem;
-    cursor:pointer; transition:all 0.2s;
+    flex:1; padding:12px; border:1px solid rgba(255,255,255,0.1);
+    border-radius:12px; background:transparent; color:var(--text-sub);
+    font-family:'Inter',sans-serif; font-weight:600; font-size:0.85rem;
+    cursor:pointer;
   }
-  .modal-cancel:hover { border-color:var(--primary); color:var(--primary); }
   .modal-confirm {
-    flex:1; padding:13px; border:none;
-    border-radius:14px; background:linear-gradient(135deg,#4f46e5,#6366f1);
-    color:#fff; font-family:'Mulish',sans-serif; font-weight:700; font-size:0.88rem;
-    cursor:pointer; box-shadow:0 4px 14px rgba(79,70,229,0.4);
-    transition:all 0.2s;
+    flex:1; padding:12px; border:none;
+    border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--primary-light));
+    color:#fff; font-family:'Inter',sans-serif; font-weight:700; font-size:0.85rem;
+    cursor:pointer;
   }
-  .modal-confirm:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(79,70,229,0.5); }
-  .modal-tip { font-size:0.72rem; color:var(--text-sub); margin-top:14px; display:flex; align-items:center; justify-content:center; gap:5px; }
-  .modal-tip svg { width:13px; height:13px; color:var(--orange); }
+  .modal-tip { font-size:0.65rem; color:var(--text-sub); margin-top:14px; }
 
-  .bottom-nav {
-    position:fixed; bottom:0; left:0; right:0; z-index:100;
-    background:rgba(255,255,255,0.95); backdrop-filter:blur(16px);
-    border-top:1px solid rgba(79,70,229,0.08);
-    height:66px; display:flex; align-items:center; justify-content:space-around;
-    padding:0 8px; box-shadow:0 -4px 20px rgba(79,70,229,0.08);
-  }
-  .nav-item {
-    display:flex; flex-direction:column; align-items:center; gap:3px;
-    cursor:pointer; padding:7px 16px; border-radius:14px; transition:all 0.2s; flex:1;
-    text-decoration:none;
-  }
-  .nav-item svg { width:22px; height:22px; color:var(--text-sub); }
-  .nav-item span { font-size:0.6rem; font-weight:600; color:var(--text-sub); }
-  .nav-item.active { background:var(--primary-light); }
-  .nav-item.active svg, .nav-item.active span { color:var(--primary); }
-  @media(min-width:768px) { .bottom-nav { display:none; } }
+  .cta-row { display:flex; flex-direction:column; gap:10px; }
 
-  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-  .card { animation:fadeUp 0.4s ease both; }
-  .card:nth-child(1){animation-delay:.05s}
-  .card:nth-child(2){animation-delay:.1s}
-  .card:nth-child(3){animation-delay:.15s}
-  .card:nth-child(4){animation-delay:.2s}
-  .card:nth-child(5){animation-delay:.25s}
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .card, .brand-card { animation:fadeUp 0.3s ease both; }
 </style>
 </head>
 <body>
 
 <nav class="navbar">
   <a href="index.php" class="back-btn">
-    <i class="hgi-stroke hgi-arrow-left"></i>
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
     Back
   </a>
   <div class="logo">Pay<span>ou</span></div>
-  <div style="width:74px;display:flex;justify-content:flex-end;">
-    <?php if ($is_admin): ?>
-    <a href="admin.php?edit=<?php echo $offer['id']; ?>" style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);cursor:pointer;text-decoration:none;">
-      <i class="hgi-stroke hgi-edit-01"></i>
-    </a>
-    <?php endif; ?>
-  </div>
+  <div style="width:40px;"></div>
 </nav>
 
 <div class="page">
 
-  <div style="display:flex;flex-direction:column;gap:18px;">
+  <!-- Media / Logo -->
+  <?php if (!empty($offer['logo_image'])): ?>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;">
+  </div>
+  <?php endif; ?>
 
-    <div class="carousel-wrap" style="border-radius:var(--radius);overflow:hidden;">
-      <?php if (!empty($offer['video_file'])): ?>
-      <video controls playsinline preload="metadata" style="width:100%;height:280px;object-fit:contain;background:#000;">
-        <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-      <?php elseif (!empty($offer['logo_image'])): ?>
-      <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:auto;object-fit:contain;">
+  <!-- Brand Info -->
+  <div class="brand-card">
+    <div class="brand-logo">
+      <?php if (!empty($offer['logo_image'])): ?>
+        <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>">
       <?php else: ?>
-      <div style="display:flex;align-items:center;justify-content:center;height:200px;background:linear-gradient(135deg,#fff5f5 0%,#ffd6c8 100%);font-size:4rem;">
         <?php echo htmlspecialchars($offer['brand_emoji']); ?>
-      </div>
       <?php endif; ?>
     </div>
-
-    <div class="brand-row">
-      <div class="brand-logo">
-        <?php if (!empty($offer['logo_image'])): ?>
-        <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
-        <?php else: ?>
-        <?php echo htmlspecialchars($offer['brand_emoji']); ?>
-        <?php endif; ?>
-      </div>
-      <div class="brand-info">
-        <h2><?php echo htmlspecialchars($offer['brand_name']); ?></h2>
-        <p><?php echo htmlspecialchars($offer['category']); ?> · Verified · <?php echo formatNumber($offer['claimed_count']); ?>+ claimed</p>
-      </div>
-      <div class="brand-badges">
-        <?php if ($offer['is_verified']): ?><span class="badge green">✓ Verified</span><?php endif; ?>
-        <?php if ($offer['is_popular']): ?><span class="badge blue">🔥 Popular</span><?php endif; ?>
-        <?php if ($is_expired): ?><span class="badge red">❌ Expired</span><?php endif; ?>
-      </div>
+    <div class="brand-info">
+      <h2><?php echo htmlspecialchars($offer['brand_name']); ?></h2>
+      <p><?php echo htmlspecialchars($offer['category']); ?> · <?php echo formatNumber($offer['claimed_count']); ?>+ claimed</p>
     </div>
-
-    <div class="card">
-      <div class="card-title">
-        <i class="hgi-stroke hgi-file-02"></i>
-        Offer Description
-      </div>
-      <p class="desc-text"><?php echo nl2br(htmlspecialchars($offer['description'])); ?></p>
-      <div class="stats-row" style="margin-top:16px;">
-        <div class="stat-pill"><div class="sv"><?php echo formatNumber($offer['claimed_count']); ?></div><div class="sl">People Claimed</div></div>
-        <!-- <div class="stat-pill"><div class="sv"><?php echo $offer['rating'] > 0 ? $offer['rating'] . '★' : 'N/A'; ?></div><div class="sl">Avg Rating</div></div> -->
-        <div class="stat-pill"><div class="sv"><?php echo $cashback_display; ?></div><div class="sl">Max Cashback</div></div>
-        <div class="stat-pill" style="background:<?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '#dcfce7' : '#fef3c7'; ?>;">
-          <div class="sv" style="color:<?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '#166534' : '#92400e'; ?>;"><?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '⚡ Instant' : '⏱ 24-72h'; ?></div>
-          <div class="sl">Payout</div>
-        </div>
-      </div>
+    <div class="brand-badges">
+      <?php if ($offer['is_verified']): ?><span class="badge green">✓ Verified</span><?php endif; ?>
+      <?php if ($offer['is_popular']): ?><span class="badge blue">🔥 Popular</span><?php endif; ?>
+      <?php if ($is_expired): ?><span class="badge red">❌ Expired</span><?php endif; ?>
     </div>
-
-    <div class="card">
-      <div class="card-title">
-        <i class="hgi-stroke hgi-time"></i>
-        How to Claim – Step by Step
-      </div>
-      <div class="timeline">
-        <?php if (empty($steps)): ?>
-        <div class="tl-item done">
-          <div class="tl-left">
-            <div class="tl-dot">✓</div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-body">
-            <div class="tl-step-title">Open the Offer</div>
-            <div class="tl-step-desc">Tap "Claim Now" to be redirected to the merchant website.</div>
-            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> Instant</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot">2</div>
-            <div class="tl-line"></div>
-          </div>
-          <div class="tl-body">
-            <div class="tl-step-title">Apply Promo Code</div>
-            <div class="tl-step-desc">Enter code <strong><?php echo htmlspecialchars($offer['promo_code']); ?></strong> at checkout.</div>
-            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> Instant</div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-left">
-            <div class="tl-dot">🎉</div>
-          </div>
-          <div class="tl-body">
-            <div class="tl-step-title">Cashback Credited!</div>
-            <div class="tl-step-desc"><?php echo $cashback_display; ?> cashback added to your wallet within <?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'a few minutes' : '24–48 hours'; ?>.</div>
-            <div class="tl-time"><i class="hgi-stroke hgi-time"></i> <?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'Instant' : '24–48 hrs'; ?></div>
-          </div>
-        </div>
-        <?php else: ?>
-          <?php foreach ($steps as $index => $step): ?>
-          <div class="tl-item <?php echo $step['is_completed'] ? 'done' : ''; ?>">
-            <div class="tl-left">
-              <div class="tl-dot"><?php echo $step['is_completed'] ? '✓' : $step['step_number']; ?></div>
-              <?php if ($index < count($steps) - 1): ?><div class="tl-line"></div><?php endif; ?>
-            </div>
-            <div class="tl-body">
-              <div class="tl-step-title"><?php echo htmlspecialchars($step['step_title']); ?></div>
-              <div class="tl-step-desc"><?php echo htmlspecialchars($step['step_description']); ?></div>
-              <?php if ($step['step_time']): ?>
-              <div class="tl-time"><i class="hgi-stroke hgi-time"></i> <?php echo htmlspecialchars($step['step_time']); ?></div>
-              <?php endif; ?>
-            </div>
-          </div>
-          <?php endforeach; ?>
-        <?php endif; ?>
-      </div>
-    </div>
-
   </div>
 
-  <div style="display:flex;flex-direction:column;gap:18px;">
-
-    <!-- <div class="card">
-      <div class="card-title">
-        <i class="hgi-stroke hgi-wallet"></i>
-        Amount & Payment Info
-      </div>
-      <div class="amount-grid">
-        <div class="amount-cell">
-          <div class="ac-label">Min. Order Value</div>
-          <div class="ac-value">₹<?php echo number_format($offer['min_order_amount']); ?></div>
-          <div class="ac-sub">to qualify</div>
-        </div>
-        <div class="amount-cell green-cell">
-          <div class="ac-label">Max Cashback</div>
-          <div class="ac-value"><?php echo $cashback_display; ?></div>
-          <div class="ac-sub"><?php echo $offer['cashback_type'] === 'flat' ? 'flat cashback' : 'on order value'; ?></div>
-        </div>
-        <div class="amount-cell">
-          <div class="ac-label">Cashback Rate</div>
-          <div class="ac-value"><?php echo $offer['cashback_rate']; ?>%</div>
-          <div class="ac-sub">of order value</div>
-        </div>
-        <div class="amount-cell green-cell">
-          <div class="ac-label">Wallet Credit</div>
-          <div class="ac-value">24h</div>
-          <div class="ac-sub">avg. credit time</div>
-        </div>
-      </div>
-
-      <?php if (!$is_expired && $offer['promo_code']): ?>
-      <div style="margin-top:16px;background:var(--primary-light);border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div style="font-size:0.7rem;font-weight:600;color:var(--text-sub);">Promo Code</div>
-          <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:1.2rem;color:var(--primary);"><?php echo htmlspecialchars($offer['promo_code']); ?></div>
-        </div>
-        <button onclick="copyCode()" style="background:var(--primary);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:0.75rem;cursor:pointer;">Copy</button>
-      </div>
-      <?php endif; ?>
-
-      <div style="margin-top:16px;background:<?php echo $is_expired ? '#fee2e2' : '#fff0f0'; ?>;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
-        <span style="font-size:1.3rem;">⏳</span>
-        <div>
-          <div style="font-size:0.78rem;font-weight:700;color:<?php echo $is_expired ? 'var(--red)' : '#ef4444'; ?>;">Offer Expires: <?php echo formatDate($offer['expiry_date']); ?></div>
-          <div style="font-size:0.7rem;color:var(--text-sub);margin-top:2px;"><?php echo $is_expired ? 'This offer has ended' : $days_left . ' days left · Don\'t miss out!'; ?></div>
-        </div>
-        <?php if (!$is_expired): ?>
-        <div style="margin-left:auto;background:#ef4444;color:#fff;font-size:0.68rem;font-weight:800;padding:4px 10px;border-radius:10px;font-family:'Nunito',sans-serif;"><?php echo $days_left; ?>d left</div>
-        <?php endif; ?>
-      </div>
-    </div> -->
-
-    <!-- <div class="card">
-      <div class="card-title">
-        <i class="hgi-stroke hgi-information-circle"></i>
-        Important Notices
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="alert-box info">
-          <div class="alert-icon">ℹ️</div>
-          <div class="alert-content">
-            <h4>You're being redirected</h4>
-            <p>Clicking "Claim Now" will take you to the merchant's official website.</p>
-          </div>
-        </div>
-        <div class="alert-box warn">
-          <div class="alert-icon">⚠️</div>
-          <div class="alert-content">
-            <h4>Use same phone number</h4>
-            <p>Log in with the same phone number to ensure cashback tracking.</p>
-          </div>
-        </div>
-        <div class="alert-box success">
-          <div class="alert-icon">✅</div>
-          <div class="alert-content">
-            <h4>One claim per user</h4>
-            <p>This offer can be claimed once per account. Cashback is non-transferable.</p>
-          </div>
-        </div>
-      </div>
-    </div> -->
-
-    <?php if (!empty($terms)): ?>
-    <div class="card" style="font-size:0.76rem;color:var(--text-sub);line-height:1.7;">
-      <div class="card-title" style="margin-bottom:10px;">
-        <i class="hgi-stroke hgi-checkmark-circle"></i>
-        Terms & Conditions
-      </div>
-      <ul style="padding-left:16px;display:flex;flex-direction:column;gap:5px;">
-        <?php foreach ($terms as $term): ?>
-        <li><?php echo htmlspecialchars($term['term_text']); ?></li>
-        <?php endforeach; ?>
-      </ul>
+  <!-- Description -->
+  <div class="card">
+    <div class="card-title">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      About This Offer
     </div>
-    <?php endif; ?>
+    <p class="desc-text"><?php echo nl2br(htmlspecialchars($offer['description'])); ?></p>
+    <div class="stats-row">
+      <div class="stat-pill">
+        <div class="sv"><?php echo formatNumber($offer['claimed_count']); ?></div>
+        <div class="sl">Claimed</div>
+      </div>
+      <div class="stat-pill">
+        <div class="sv"><?php echo $cashback_display; ?></div>
+        <div class="sl">Cashback</div>
+      </div>
+      <div class="stat-pill">
+        <div class="sv"><?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '⚡' : '⏱'; ?></div>
+        <div class="sl"><?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'Instant' : '24-72h'; ?></div>
+      </div>
+    </div>
+  </div>
 
-    <div class="desktop-cta" style="display:flex;flex-direction:column;gap:12px;">
-      <?php if ($is_expired): ?>
+  <!-- Steps -->
+  <div class="card">
+    <div class="card-title">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      How to Claim
+    </div>
+    <div class="timeline">
+      <?php if (empty($steps)): ?>
+      <div class="tl-item done">
+        <div class="tl-left">
+          <div class="tl-dot">✓</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-step-title">Open the Offer</div>
+          <div class="tl-step-desc">Tap "Claim Now" to be redirected to the merchant.</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot">2</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-step-title">Apply Promo Code</div>
+          <div class="tl-step-desc">Use code <strong><?php echo htmlspecialchars($offer['promo_code'] ?: 'PAYOU'); ?></strong></div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot">🎉</div>
+        </div>
+        <div class="tl-body">
+          <div class="tl-step-title">Get Cashback!</div>
+          <div class="tl-step-desc"><?php echo $cashback_display; ?> credited to your wallet.</div>
+        </div>
+      </div>
+      <?php else: ?>
+        <?php foreach ($steps as $index => $step): ?>
+        <div class="tl-item">
+          <div class="tl-left">
+            <div class="tl-dot"><?php echo $step['is_completed'] ? '✓' : $step['step_number']; ?></div>
+            <?php if ($index < count($steps) - 1): ?><div class="tl-line"></div><?php endif; ?>
+          </div>
+          <div class="tl-body">
+            <div class="tl-step-title"><?php echo htmlspecialchars($step['step_title']); ?></div>
+            <div class="tl-step-desc"><?php echo htmlspecialchars($step['step_description']); ?></div>
+            <?php if ($step['step_time']): ?>
+            <div class="tl-time"><?php echo htmlspecialchars($step['step_time']); ?></div>
+            <?php endif; ?>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <!-- Terms -->
+  <?php if (!empty($terms)): ?>
+  <div class="card">
+    <div class="card-title">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      Terms & Conditions
+    </div>
+    <ul class="terms-list">
+      <?php foreach ($terms as $term): ?>
+      <li><?php echo htmlspecialchars($term['term_text']); ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </div>
+  <?php endif; ?>
+
+  <!-- CTA Buttons -->
+  <div class="cta-row">
+    <?php if ($is_expired): ?>
       <button class="cta-btn expired" disabled>
-        <i class="hgi-stroke hgi-cancel"></i>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         Offer Expired
       </button>
-      <p class="cta-note" style="color: var(--red);">This offer is no longer available</p>
-      <?php elseif (!empty($offer['redirect_url']) || !empty($offer['link2'])): ?>
-      <?php if (!empty($offer['redirect_url'])): ?>
-      <button type="button" class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
-        <i class="hgi-stroke hgi-arrow-up-right"></i>
-        Link 1 – <?php echo htmlspecialchars($offer['brand_name']); ?>
+    <?php elseif (!empty($offer['redirect_url'])): ?>
+      <button class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Claim <?php echo $cashback_display; ?> Now
       </button>
-      <?php endif; ?>
       <?php if (!empty($offer['link2'])): ?>
-      <button type="button" class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
-        <i class="hgi-stroke hgi-arrow-up-right"></i>
-        Link 2 – <?php echo htmlspecialchars($offer['brand_name']); ?>
+      <button class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Claim via Link 2
       </button>
       <?php endif; ?>
-      <?php else: ?>
-      <button type="button" class="cta-btn" onclick="openModal('')">
-        <i class="hgi-stroke hgi-arrow-up-right"></i>
-        Claim Now – Go to <?php echo htmlspecialchars($offer['brand_name']); ?>
+    <?php else: ?>
+      <button class="cta-btn" onclick="openModal('')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        Claim <?php echo $cashback_display; ?> Now
       </button>
-      <?php endif; ?>
-      <p class="cta-note"><?php if (!$is_expired && $offer['promo_code']): ?>Use code <span><?php echo htmlspecialchars($offer['promo_code']); ?></span> · <?php endif; ?>Cashback tracked automatically</p>
+    <?php endif; ?>
+    
+    <?php if (!$is_expired && $offer['promo_code']): ?>
+    <div class="promo-code">
+      <div>
+        <div class="promo-code-label">Promo Code</div>
+        <div class="promo-code-value"><?php echo htmlspecialchars($offer['promo_code']); ?></div>
+      </div>
+      <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
-
+    <?php endif; ?>
+    
+    <p class="cta-note">Cashback tracked automatically</p>
   </div>
 
 </div>
 
-<?php if (!$is_expired && (!empty($offer['redirect_url']) || !empty($offer['link2']))): ?>
-<div class="mobile-cta-row">
-<?php if (!empty($offer['redirect_url'])): ?>
-<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
-  <i class="hgi-stroke hgi-arrow-up-right"></i>
-  <?php echo !empty($offer['link2']) ? 'Link 1' : 'Claim Now – ' . htmlspecialchars($offer['brand_name']); ?>
-</button>
-<?php endif; ?>
-<?php if (!empty($offer['link2'])): ?>
-<button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['link2']); ?>')">
-  <i class="hgi-stroke hgi-arrow-up-right"></i>
-  Link 2
-</button>
-<?php endif; ?>
-</div>
-<?php endif; ?>
-
-
+<!-- Redirect Modal -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-icon">🚀</div>
     <h3>You're leaving OSM</h3>
-    <p>
-      You'll be redirected to <strong><?php echo htmlspecialchars($offer['brand_name']); ?></strong> to complete your order.
-      Make sure to log in with your registered phone number so your
-      <strong><?php echo $cashback_display; ?> cashback</strong> is tracked and credited within <?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? 'a few minutes' : '24–48 hours'; ?>.
-    </p>
+    <p>You'll be redirected to <strong><?php echo htmlspecialchars($offer['brand_name']); ?></strong>. Make sure to log in so your <strong><?php echo $cashback_display; ?> cashback</strong> gets tracked!</p>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-confirm" onclick="confirmRedirect()">Yes, Continue →</button>
-    </div>
-    <div class="modal-tip">
-      <i class="hgi-stroke hgi-information-circle"></i>
-      Tip: Don't close the browser tab while ordering
+      <button class="modal-confirm" onclick="confirmRedirect()">Continue</button>
     </div>
   </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const video = document.querySelector('.carousel-wrap video');
-    if (video) {
-      video.controls = true;
-      video.preload = 'metadata';
-    }
-  });
-
   let redirectUrl = '';
 
   function openModal(url) {
     redirectUrl = url;
     document.getElementById('modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
   }
   function closeModal() {
     document.getElementById('modal').classList.remove('open');
-    document.body.style.overflow = '';
   }
   function confirmRedirect() {
     closeModal();
     if (redirectUrl) {
       window.open(redirectUrl, '_blank');
     } else {
-      alert('Redirecting to <?php echo addslashes($offer['brand_name']); ?>… Cashback tracking activated! 🎉');
+      alert('Redirecting to <?php echo addslashes($offer['brand_name']); ?>… Cashback tracking activated!');
     }
   }
   document.getElementById('modal').addEventListener('click', function(e) {
@@ -739,7 +466,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   function copyCode() {
     const code = '<?php echo addslashes($offer['promo_code']); ?>';
     navigator.clipboard.writeText(code).then(() => {
-      alert('Promo code copied: ' + code);
+      alert('Code copied: ' + code);
     });
   }
 </script>
