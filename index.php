@@ -579,7 +579,7 @@ $conn->close();
       <div class="promo-scroll">
         <?php $colors = ['salmon', 'mint', 'lavender', 'blue']; ?>
         <?php foreach ($banners as $index => $banner): ?>
-        <div class="promo-card <?php echo $colors[$index % 4]; ?>" style="padding:0;overflow:hidden;">
+        <div class="promo-card <?php echo $colors[$index % 4]; ?>" style="padding:0;overflow:hidden;width:100%;max-width:100%;min-width:100%;">
           <?php if (!empty($banner['link_url'])): ?>
           <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank" style="display:block;width:100%;height:100%;">
             <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;">
