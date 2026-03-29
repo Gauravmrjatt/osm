@@ -375,49 +375,19 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
   <div style="display:flex;flex-direction:column;gap:18px;">
 
-    <div class="carousel-wrap">
-      <div class="carousel-track" id="track">
-        <?php if (!empty($offer['video_file'])): ?>
-        <div class="carousel-slide s1">
-          <video width="100%" height="100%" style="object-fit:contain;background:#000;" autoplay muted loop playsinline>
-            <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
-          </video>
-          <div class="carousel-deco"><?php echo $cashback_display; ?></div>
-          <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
-        </div>
-        <?php endif; ?>
-        <?php if (!empty($offer['logo_image'])): ?>
-        <div class="carousel-slide s2">
-          <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">
-          <div class="carousel-deco"><?php echo $cashback_display; ?></div>
-          <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
-        </div>
-        <?php endif; ?>
-        <?php if (empty($offer['video_file']) && empty($offer['logo_image'])): ?>
-        <div class="carousel-slide s1">
-          <?php echo htmlspecialchars($offer['brand_emoji']); ?>
-          <div class="carousel-deco"><?php echo $cashback_display; ?></div>
-          <div class="slide-label"><?php echo htmlspecialchars($offer['title']); ?></div>
-        </div>
-        <?php endif; ?>
+    <div class="carousel-wrap" style="border-radius:var(--radius);overflow:hidden;">
+      <?php if (!empty($offer['video_file'])): ?>
+      <video width="100%" height="280" style="width:100%;object-fit:contain;background:#000;" controls playsinline>
+        <source src="uploads/<?php echo htmlspecialchars($offer['video_file']); ?>" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <?php elseif (!empty($offer['logo_image'])): ?>
+      <img src="uploads/<?php echo htmlspecialchars($offer['logo_image']); ?>" style="width:100%;height:auto;object-fit:contain;">
+      <?php else: ?>
+      <div style="display:flex;align-items:center;justify-content:center;height:200px;background:linear-gradient(135deg,#fff5f5 0%,#ffd6c8 100%);font-size:4rem;">
+        <?php echo htmlspecialchars($offer['brand_emoji']); ?>
       </div>
-      <button class="c-prev" onclick="slide(-1)">
-        <i class="hgi-stroke hgi-arrow-left"></i>
-      </button>
-      <button class="c-next" onclick="slide(1)">
-        <i class="hgi-stroke hgi-arrow-right"></i>
-      </button>
-      <div class="c-dots" id="dots">
-        <?php 
-        $totalSlides = 0;
-        if (!empty($offer['video_file'])) $totalSlides++;
-        if (!empty($offer['logo_image'])) $totalSlides++;
-        if ($totalSlides == 0) $totalSlides = 1;
-        ?>
-        <?php for ($i = 0; $i < $totalSlides; $i++): ?>
-        <div class="c-dot <?php echo $i === 0 ? 'active' : ''; ?>" onclick="goTo(<?php echo $i; ?>)"></div>
-        <?php endfor; ?>
-      </div>
+      <?php endif; ?>
     </div>
 
     <div class="brand-row">
