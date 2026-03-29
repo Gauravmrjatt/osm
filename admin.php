@@ -142,19 +142,49 @@ $offers = $offers_result->fetch_all(MYSQLI_ASSOC);
 
 // Get offer for editing
 $edit_offer = null;
+$is_new_offer = false;
 if (isset($_GET['edit']) && $is_logged_in) {
     $edit_id = intval($_GET['edit']);
-    $edit_result = $conn->query("SELECT * FROM offers WHERE id = $edit_id");
-    $edit_offer = $edit_result->fetch_assoc();
     
-    if ($edit_offer) {
-        // Get steps
-        $steps_result = $conn->query("SELECT * FROM offer_steps WHERE offer_id = $edit_id ORDER BY step_number");
-        $edit_offer['steps'] = $steps_result->fetch_all(MYSQLI_ASSOC);
+    if ($edit_id > 0) {
+        $edit_result = $conn->query("SELECT * FROM offers WHERE id = $edit_id");
+        $edit_offer = $edit_result->fetch_assoc();
         
-        // Get terms
-        $terms_result = $conn->query("SELECT * FROM offer_terms WHERE offer_id = $edit_id ORDER BY sort_order");
-        $edit_offer['terms'] = $terms_result->fetch_all(MYSQLI_ASSOC);
+        if ($edit_offer) {
+            // Get steps
+            $steps_result = $conn->query("SELECT * FROM offer_steps WHERE offer_id = $edit_id ORDER BY step_number");
+            $edit_offer['steps'] = $steps_result->fetch_all(MYSQLI_ASSOC);
+            
+            // Get terms
+            $terms_result = $conn->query("SELECT * FROM offer_terms WHERE offer_id = $edit_id ORDER BY sort_order");
+            $edit_offer['terms'] = $terms_result->fetch_all(MYSQLI_ASSOC);
+        }
+    } else {
+        // New offer form (edit=0)
+        $is_new_offer = true;
+        $edit_offer = [
+            'id' => 0,
+            'title' => '',
+            'description' => '',
+            'brand_name' => '',
+            'brand_emoji' => '🎁',
+            'category' => 'General',
+            'min_order_amount' => 0,
+            'max_cashback' => 0,
+            'cashback_rate' => 0,
+            'cashback_type' => 'flat',
+            'expiry_date' => date('Y-m-d', strtotime('+30 days')),
+            'promo_code' => '',
+            'redirect_url' => '',
+            'claimed_count' => 0,
+            'rating' => 0,
+            'is_featured' => 0,
+            'is_verified' => 0,
+            'is_popular' => 0,
+            'status' => 'active',
+            'steps' => [],
+            'terms' => []
+        ];
     }
 }
 
@@ -283,7 +313,7 @@ $conn->close();
       </div>
       <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
     </form>
-    <p style="margin-top: 16px; font-size: 0.75rem;">Default password: <code>payou123</code></p>
+
     <a href="index.php" style="display: block; margin-top: 16px; color: var(--primary); text-decoration: none; font-size: 0.85rem;">← Back to Home</a>
   </div>
 </div>
@@ -303,11 +333,11 @@ $conn->close();
   <div class="message <?php echo $message_type; ?>"><?php echo $message; ?></div>
   <?php endif; ?>
 
-  <?php if ($edit_offer): ?>
+  <?php if ($edit_offer || $is_new_offer): ?>
   <!-- Edit/Add Offer Form -->
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 class="card-title" style="margin: 0;"><?php echo $edit_offer ? 'Edit Offer' : 'Add New Offer'; ?></h2>
+      <h2 class="card-title" style="margin: 0;"><?php echo ($edit_offer && $edit_offer['id'] > 0) ? 'Edit Offer' : 'Add New Offer'; ?></h2>
       <a href="admin.php" class="btn btn-secondary btn-sm">Cancel</a>
     </div>
     
