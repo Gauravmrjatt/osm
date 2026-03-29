@@ -515,7 +515,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 
   <div style="display:flex;flex-direction:column;gap:18px;">
 
-    <div class="card">
+    <!-- <div class="card">
       <div class="card-title">
         <i class="hgi-stroke hgi-wallet"></i>
         Amount & Payment Info
@@ -563,7 +563,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
         <div style="margin-left:auto;background:#ef4444;color:#fff;font-size:0.68rem;font-weight:800;padding:4px 10px;border-radius:10px;font-family:'Nunito',sans-serif;"><?php echo $days_left; ?>d left</div>
         <?php endif; ?>
       </div>
-    </div>
+    </div> -->
 
     <div class="card">
       <div class="card-title">
