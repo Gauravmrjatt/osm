@@ -73,10 +73,10 @@ if ($is_logged_in && $_SERVER['REQUEST_METHOD'] === 'POST') {
         // Steps
         $steps = [];
         if (!empty($_POST['step_title'])) {
-            foreach ($_POST['step_title'] as $i => $title) {
-                if (!empty($title)) {
+            foreach ($_POST['step_title'] as $i => $step_title) {
+                if (!empty($step_title)) {
                     $steps[] = [
-                        'title' => $title,
+                        'title' => $step_title,
                         'description' => $_POST['step_desc'][$i] ?? '',
                         'time' => $_POST['step_time'][$i] ?? ''
                     ];
