@@ -178,31 +178,13 @@ $conn->close();
 
   .promo-scroll {
     display: flex; gap: 16px;
-    overflow-x: visible;
+    overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
     padding-bottom: 4px;
     margin-bottom: 36px;
-    position: relative;
   }
   .promo-scroll::-webkit-scrollbar { display: none; }
-  .promo-scroll.auto-scroll {
-    animation: scrollPromo 20s linear infinite;
-  }
-  .promo-scroll.auto-scroll:hover { animation-play-state: paused; }
-  @keyframes scrollPromo {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .promo-nav-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 36px; height: 36px; border-radius: 50%;
-    background: #fff; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow-md); z-index: 10;
-    color: var(--primary);
-  }
-  .promo-nav-btn:hover { background: var(--primary); color: #fff; }
   .promo-nav-btn.prev { left: -18px; }
   .promo-nav-btn.next { right: -18px; }
   @media(max-width: 767px) {
@@ -594,19 +576,8 @@ $conn->close();
 
       <!-- BANNERS -->
       <?php if (!empty($banners)): ?>
-      <div class="promo-scroll auto-scroll" id="promoScroll">
+      <div class="promo-scroll">
         <?php $colors = ['salmon', 'mint', 'lavender', 'blue']; ?>
-        <?php foreach ($banners as $index => $banner): ?>
-        <div class="promo-card <?php echo $colors[$index % 4]; ?>" style="padding:0;overflow:hidden;">
-          <?php if (!empty($banner['link_url'])): ?>
-          <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank" style="display:block;width:100%;height:100%;">
-            <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;">
-          </a>
-          <?php else: ?>
-          <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width:100%;height:100%;object-fit:cover;">
-          <?php endif; ?>
-        </div>
-        <?php endforeach; ?>
         <?php foreach ($banners as $index => $banner): ?>
         <div class="promo-card <?php echo $colors[$index % 4]; ?>" style="padding:0;overflow:hidden;">
           <?php if (!empty($banner['link_url'])): ?>
@@ -808,15 +779,6 @@ $conn->close();
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       this.classList.add('active');
     });
-    const promoScroll = document.getElementById('promoScroll');
-  if (promoScroll) {
-    promoScroll.addEventListener('mouseenter', function() {
-      this.style.animationPlayState = 'paused';
-    });
-    promoScroll.addEventListener('mouseleave', function() {
-      this.style.animationPlayState = 'running';
-    });
-  }
 </script>
 
 </body>
