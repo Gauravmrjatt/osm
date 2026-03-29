@@ -667,7 +667,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
 <?php if (!empty($offer['redirect_url'])): ?>
 <button type="button" class="mobile-fixed-cta" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
   <i class="hgi-stroke hgi-arrow-up-right"></i>
-  Link 1
+  <?php echo !empty($offer['link2']) ? 'Link 1' : 'Claim Now – ' . htmlspecialchars($offer['brand_name']); ?>
 </button>
 <?php endif; ?>
 <?php if (!empty($offer['link2'])): ?>
