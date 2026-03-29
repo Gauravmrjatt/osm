@@ -144,7 +144,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   .brand-logo img { width:100%; height:100%; object-fit:cover; border-radius:14px; }
   .brand-info h2 { font-weight: 700; font-size: 1.1rem; color: var(--text); }
   .brand-info p { font-size:0.72rem; color:var(--text-sub); margin-top:3px; }
-  .brand-badges { margin-left:auto; display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
+  .brand-badges { margin-left:auto; display:flex; flex-direction:row; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
   .badge { font-size:0.62rem; font-weight:700; padding:3px 10px; border-radius:8px; }
   .badge.green { background:rgba(0,210,106,0.12); color:var(--green); }
   .badge.blue { background:rgba(30,107,255,0.12); color:var(--primary-light); }
