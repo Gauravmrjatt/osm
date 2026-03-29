@@ -312,6 +312,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
   @media(max-width: 767px) {
     .mobile-fixed-cta { display: flex; }
     .page { padding-bottom: 40px; }
+    .desktop-cta { display: none !important; }
   }
   .cta-note span { color:var(--primary); font-weight:600; }
 
@@ -610,7 +611,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
     </div>
     <?php endif; ?>
 
-    <div style="display:flex;flex-direction:column;gap:12px;">
+    <div class="desktop-cta" style="display:flex;flex-direction:column;gap:12px;">
       <?php if ($is_expired): ?>
       <button class="cta-btn expired" disabled>
         <i class="hgi-stroke hgi-cancel"></i>
