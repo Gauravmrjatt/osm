@@ -617,12 +617,12 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
       </button>
       <p class="cta-note" style="color: var(--red);">This offer is no longer available</p>
       <?php elseif ($offer['redirect_url']): ?>
-      <a href="<?php echo htmlspecialchars($offer['redirect_url']); ?>" target="_blank" class="cta-btn" onclick="openModal()">
+      <button type="button" class="cta-btn" onclick="openModal('<?php echo htmlspecialchars($offer['redirect_url']); ?>')">
         <i class="hgi-stroke hgi-arrow-up-right"></i>
         Claim Now – Go to <?php echo htmlspecialchars($offer['brand_name']); ?>
-      </a>
+      </button>
       <?php else: ?>
-      <button class="cta-btn" onclick="openModal()">
+      <button type="button" class="cta-btn" onclick="openModal('')">
         <i class="hgi-stroke hgi-arrow-up-right"></i>
         Claim Now – Go to <?php echo htmlspecialchars($offer['brand_name']); ?>
       </button>
@@ -689,7 +689,10 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   track.parentElement.addEventListener('mouseenter', () => clearInterval(auto));
   track.parentElement.addEventListener('mouseleave', () => { auto = setInterval(() => slide(1), 3500); });
 
-  function openModal() {
+  let redirectUrl = '';
+
+  function openModal(url) {
+    redirectUrl = url;
     document.getElementById('modal').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -699,7 +702,11 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
   }
   function confirmRedirect() {
     closeModal();
-    alert('Redirecting to <?php echo addslashes($offer['brand_name']); ?>… Cashback tracking activated! 🎉');
+    if (redirectUrl) {
+      window.open(redirectUrl, '_blank');
+    } else {
+      alert('Redirecting to <?php echo addslashes($offer['brand_name']); ?>… Cashback tracking activated! 🎉');
+    }
   }
   document.getElementById('modal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
