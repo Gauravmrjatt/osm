@@ -560,15 +560,7 @@ $conn->close();
 
   <div class="page-wrap">
 
-    <!-- Hero Banner -->
-    <div class="hero-banner">
-      <div class="hero-icon">💰</div>
-      <div class="hero-content">
-        <div class="hero-label">Join Our</div>
-        <div class="hero-title"><span>PRIVATE TELEGRAM</span> CHANNEL</div>
-        <div class="hero-subtitle">Get exclusive offers & instant updates</div>
-      </div>
-    </div>
+
 
     <!-- Banners Section -->
     <?php if (!empty($banners)): ?>
@@ -577,7 +569,7 @@ $conn->close();
         <?php foreach ($banners as $banner): ?>
           <?php if (!empty($banner['image_url'])): ?>
             <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>" style="flex: 0 0 auto; display: block;">
-              <img src="/uploads/?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="height: 80px; border-radius: 14px; object-fit: cover;">
+              <img src="/uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>" style="height: 80px; border-radius: 14px; object-fit: cover;">
             </a>
           <?php endif; ?>
         <?php endforeach; ?>
