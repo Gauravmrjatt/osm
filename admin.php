@@ -168,6 +168,66 @@ while ($row = $cat_result->fetch_assoc()) {
 }
 $default_category = !empty($categories) ? $categories[0]['name'] : 'Bank Accounts';
 
+// Banner management
+$banners = [];
+$banner_result = $conn->query("SELECT * FROM banners ORDER BY sort_order");
+while ($row = $banner_result->fetch_assoc()) {
+    $banners[] = $row;
+}
+
+// Handle banner upload
+if ($is_logged_in && isset($_POST['upload_banner'])) {
+    if (!empty($_FILES['banner_image']['name'])) {
+        $upload_dir = 'uploads/';
+        $ext = pathinfo($_FILES['banner_image']['name'], PATHINFO_EXTENSION);
+        $filename = 'banner_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+        $target = $upload_dir . $filename;
+        
+        if (move_uploaded_file($_FILES['banner_image']['tmp_name'], $target)) {
+            $link_url = $_POST['banner_link'] ?? '';
+            $sort_order = intval($_POST['banner_order'] ?? count($banners) + 1);
+            $stmt = $conn->prepare("INSERT INTO banners (image_url, link_url, sort_order) VALUES (?, ?, ?)");
+            $stmt->bind_param("ssi", $filename, $link_url, $sort_order);
+            $stmt->execute();
+            $message = 'Banner uploaded successfully.';
+            $message_type = 'success';
+            header('Location: admin.php?tab=banners');
+            exit;
+        }
+    }
+}
+
+// Delete banner
+if ($is_logged_in && isset($_POST['delete_banner'])) {
+    $banner_id = intval($_POST['banner_id']);
+    $result = $conn->query("SELECT image_url FROM banners WHERE id = $banner_id");
+    if ($result && $row = $result->fetch_assoc()) {
+        if (!empty($row['image_url']) && file_exists('uploads/' . $row['image_url'])) {
+            unlink('uploads/' . $row['image_url']);
+        }
+    }
+    $conn->query("DELETE FROM banners WHERE id = $banner_id");
+    $message = 'Banner deleted successfully.';
+    $message_type = 'success';
+    header('Location: admin.php?tab=banners');
+    exit;
+}
+
+// Toggle banner status
+if ($is_logged_in && isset($_POST['toggle_banner'])) {
+    $banner_id = intval($_POST['banner_id']);
+    $conn->query("UPDATE banners SET status = IF(status='active','inactive','active') WHERE id = $banner_id");
+    header('Location: admin.php?tab=banners');
+    exit;
+}
+
+// Refresh banners
+$banners = [];
+$banner_result = $conn->query("SELECT * FROM banners ORDER BY sort_order");
+while ($row = $banner_result->fetch_assoc()) {
+    $banners[] = $row;
+}
+
 // Get all offers
 $offers_result = $conn->query("SELECT * FROM offers ORDER BY created_at DESC");
 $offers = $offers_result->fetch_all(MYSQLI_ASSOC);
@@ -435,9 +495,65 @@ $conn->close();
   <div class="admin-tabs">
     <a href="admin.php?tab=offers" class="tab-btn <?php echo $active_tab === 'offers' ? 'active' : ''; ?>">Offers</a>
     <a href="admin.php?tab=categories" class="tab-btn <?php echo $active_tab === 'categories' ? 'active' : ''; ?>">Categories</a>
+    <a href="admin.php?tab=banners" class="tab-btn <?php echo $active_tab === 'banners' ? 'active' : ''; ?>">Banners</a>
   </div>
 
-  <?php if ($active_tab === 'categories'): ?>
+  <?php if ($active_tab === 'banners'): ?>
+  
+  <!-- Banners Management -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 class="card-title" style="margin: 0;">Manage Banners</h2>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" style="background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 12px; align-items: end;">
+        <div class="form-group" style="margin: 0;">
+          <label>Upload Banner Image</label>
+          <input type="file" name="banner_image" accept="image/*" required>
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label>Link URL (optional)</label>
+          <input type="text" name="banner_link" placeholder="https://example.com">
+        </div>
+        <div class="form-group" style="margin: 0;">
+          <label>Order</label>
+          <input type="number" name="banner_order" value="<?php echo count($banners) + 1; ?>" min="1" style="width: 80px;">
+        </div>
+        <button type="submit" name="upload_banner" class="btn btn-primary">Upload</button>
+      </div>
+    </form>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+      <?php foreach ($banners as $banner): ?>
+      <div style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; position: relative;">
+        <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" style="width: 100%; height: 120px; object-fit: cover;">
+        <div style="padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="status-badge status-<?php echo $banner['status']; ?>"><?php echo ucfirst($banner['status']); ?></span>
+            <span style="font-size: 0.75rem; color: var(--text-sub);">Order: <?php echo $banner['sort_order']; ?></span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <form method="post" style="flex: 1;">
+              <input type="hidden" name="banner_id" value="<?php echo $banner['id']; ?>">
+              <button type="submit" name="toggle_banner" class="btn btn-secondary btn-sm" style="width: 100%;"><?php echo $banner['status'] === 'active' ? 'Disable' : 'Enable'; ?></button>
+            </form>
+            <form method="post" onsubmit="return confirm('Delete this banner?');">
+              <input type="hidden" name="banner_id" value="<?php echo $banner['id']; ?>">
+              <button type="submit" name="delete_banner" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    
+    <?php if (empty($banners)): ?>
+    <p style="text-align: center; color: var(--text-sub); padding: 40px;">No banners uploaded yet. Upload your first banner above.</p>
+    <?php endif; ?>
+  </div>
+
+  <?php elseif ($active_tab === 'categories'): ?>
   
   <!-- Categories Management -->
   <div class="card">

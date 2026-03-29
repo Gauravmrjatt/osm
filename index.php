@@ -13,6 +13,13 @@ while ($row = $cat_result->fetch_assoc()) {
     $categories[] = $row;
 }
 
+// Get active banners
+$banners = [];
+$banner_result = $conn->query("SELECT * FROM banners WHERE status = 'active' ORDER BY sort_order");
+while ($row = $banner_result->fetch_assoc()) {
+    $banners[] = $row;
+}
+
 // Get filter values
 $category_filter = $_GET['category'] ?? 'All';
 $min_amount = $_GET['min_amount'] ?? 0;
@@ -166,6 +173,26 @@ $conn->close();
     max-width: 1100px;
     margin: 0 auto;
     padding: 32px 20px 100px;
+  }
+
+  .banner-scroll {
+    display: flex; gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 20px;
+  }
+  .banner-scroll::-webkit-scrollbar { display: none; }
+  .banner-img {
+    width: 280px; height: 140px;
+    border-radius: 16px;
+    object-fit: cover;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+  @media(min-width: 768px) {
+    .banner-img { width: 400px; height: 180px; }
   }
 
   .promo-scroll {
@@ -533,6 +560,21 @@ $conn->close();
 
     <div class="main-content">
 
+      <!-- BANNERS -->
+      <?php if (!empty($banners)): ?>
+      <div class="banner-scroll">
+        <?php foreach ($banners as $banner): ?>
+        <?php if (!empty($banner['link_url'])): ?>
+        <a href="<?php echo htmlspecialchars($banner['link_url']); ?>" target="_blank">
+          <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" class="banner-img">
+        </a>
+        <?php else: ?>
+        <img src="uploads/<?php echo htmlspecialchars($banner['image_url']); ?>" class="banner-img">
+        <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+
       <!-- PROMO CARDS -->
       <?php if (!empty($featured_offers)): ?>
       <div class="promo-scroll">
@@ -630,23 +672,20 @@ $conn->close();
         <?php endif; ?>
       </div>
 
-      <!-- EXPIRE SOON -->
-      <?php if (!empty($expiring_offers)): ?>
+      <!-- FEATURED OFFERS -->
+      <?php if (!empty($featured_offers)): ?>
       <div class="section-header">
-        <h2 class="section-title">Expire Soon ⏰</h2>
-        <a href="index.php?sort=expiry" style="font-size:0.82rem;color:var(--primary);font-weight:600;text-decoration:none;">See all</a>
+        <h2 class="section-title">Featured Offers ⭐</h2>
+        <a href="index.php?sort=featured" style="font-size:0.82rem;color:var(--primary);font-weight:600;text-decoration:none;">See all</a>
       </div>
 
       <div class="expire-grid">
-        <?php foreach ($expiring_offers as $exp_offer): ?>
+        <?php foreach ($featured_offers as $exp_offer): ?>
         <?php 
-          $cat_class = strtolower($exp_offer['category']) === 'food' ? 'food' : 
-                      (strtolower($exp_offer['category']) === 'travel' ? 'travel' : 
-                      (strtolower($exp_offer['category']) === 'health' ? 'health' : 'ticket'));
-          $days = getDaysRemaining($exp_offer['expiry_date']);
+          $cashback = $exp_offer['cashback_type'] === 'flat' ? '₹' . number_format($exp_offer['max_cashback']) : $exp_offer['cashback_rate'] . '%';
         ?>
-        <a href="offer.php?id=<?php echo $exp_offer['id']; ?>" class="expire-card <?php echo $cat_class; ?>">
-          <div class="expire-badge"><?php echo $days; ?> days left</div>
+        <a href="offer.php?id=<?php echo $exp_offer['id']; ?>" class="expire-card">
+          <div class="expire-badge"><?php echo $cashback; ?> Cashback</div>
           <div class="expire-emoji">
             <?php if (!empty($exp_offer['logo_image'])): ?>
             <img src="uploads/<?php echo htmlspecialchars($exp_offer['logo_image']); ?>" style="width:100%;height:100%;object-fit:contain;">

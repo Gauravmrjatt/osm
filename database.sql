@@ -83,6 +83,21 @@ INSERT INTO categories (name, emoji, sort_order) VALUES
 ('Shopping', '🛒', 6),
 ('Entertainment', '🎬', 7);
 
+-- Banners table
+CREATE TABLE IF NOT EXISTS banners (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(500) NOT NULL,
+    link_url VARCHAR(500) DEFAULT '',
+    sort_order INT DEFAULT 0,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert sample banners
+INSERT INTO banners (image_url, link_url, sort_order, status) VALUES 
+('banner1.jpg', '', 1, 'active'),
+('banner2.jpg', '', 2, 'active');
+
 -- Insert sample offers
 INSERT INTO offers (title, description, brand_name, brand_emoji, category, min_order_amount, max_cashback, cashback_rate, cashback_type, expiry_date, promo_code, claimed_count, rating, is_featured, is_verified, is_popular) VALUES
 ('Flat ₹150 Cashback on KFC Orders', 'Get Flat ₹150 cashback on your KFC order when you place an order above ₹500 via Payou. Valid on the KFC app and website across all participating outlets in India.', 'KFC', '🍗', 'Food', 500, 150, 15, 'flat', '2026-06-15', 'PAYOUKFC15', 209000, 4.8, 1, 1, 1),
