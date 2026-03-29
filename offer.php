@@ -13,7 +13,7 @@ $stmt->execute();
 $offer = $stmt->get_result()->fetch_assoc();
 
 if (!$offer) {
-    echo "<script>window.location.href = 'index.php';</script>";
+    echo "<script>window.location.href = 'index';</script>";
     exit;
 }
 
@@ -256,7 +256,7 @@ $cashback_display = $offer['cashback_type'] === 'flat' ? '₹' . number_format($
 <body>
 
 <nav class="navbar">
-  <a href="index.php" class="back-btn">
+  <a href="index" class="back-btn">
     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
     Back
   </a>

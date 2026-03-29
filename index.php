@@ -555,7 +555,7 @@ $conn->close();
   <nav class="navbar">
     <div class="logo">OS<span>M</span></div>
     <?php if ($is_admin): ?>
-    <a href="admin.php" class="profile-icon" title="Admin Panel">
+    <a href="admin" class="profile-icon" title="Admin Panel">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
     </a>
     <?php endif; ?>
@@ -593,7 +593,7 @@ $conn->close();
           $is_expired = isExpired($offer['expiry_date']);
           $cashback_text = $offer['cashback_type'] === 'flat' ? '₹' . number_format($offer['max_cashback']) : $offer['cashback_rate'] . '%';
           ?>
-          <a href="offer.php?id=<?php echo $offer['id']; ?>" style="flex: 0 0 160px; text-decoration: none; color: inherit;">
+          <a href="offer?id=<?php echo $offer['id']; ?>" style="flex: 0 0 160px; text-decoration: none; color: inherit;">
             <div class="featured-card" style="background: var(--bg-card); border-radius: var(--radius); padding: 14px; border: 1px solid var(--border); height: 100%;">
               <div class="offer-logo" style="width: 40px; height: 40px; margin-bottom: 10px;">
                 <?php if (!empty($offer['logo_image'])): ?>
@@ -613,7 +613,7 @@ $conn->close();
 
     <!-- Category Tabs -->
     <div class="category-tabs">
-      <a href="index.php" class="tab-pill <?php echo $category_filter === 'All' ? 'active' : ''; ?>">All</a>
+      <a href="index" class="tab-pill <?php echo $category_filter === 'All' ? 'active' : ''; ?>">All</a>
       <?php foreach ($categories as $cat): ?>
         <a href="index.php?category=<?php echo urlencode($cat['name']); ?>" class="tab-pill <?php echo $category_filter === $cat['name'] ? 'active' : ''; ?>">
           <?php echo $cat['emoji'] . ' ' . htmlspecialchars($cat['name']); ?>
@@ -643,7 +643,7 @@ $conn->close();
         $is_expired = isExpired($offer['expiry_date']);
         $cashback_text = $offer['cashback_type'] === 'flat' ? '₹' . number_format($offer['max_cashback']) : $offer['cashback_rate'] . '%';
         ?>
-        <a href="offer.php?id=<?php echo $offer['id']; ?>" class="offer-card <?php echo $is_expired ? 'expired' : ''; ?>">
+        <a href="offer?id=<?php echo $offer['id']; ?>" class="offer-card <?php echo $is_expired ? 'expired' : ''; ?>">
           <?php if (!$is_expired): ?>
             <div class="offer-status">LIVE</div>
           <?php endif; ?>
@@ -677,7 +677,7 @@ $conn->close();
       <?php if (empty($offers)): ?>
         <div class="empty-state">
           <p>No offers found matching your criteria.</p>
-          <a href="index.php">Clear filters</a>
+          <a href="index">Clear filters</a>
         </div>
       <?php endif; ?>
     </div>

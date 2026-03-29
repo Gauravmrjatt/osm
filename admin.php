@@ -31,7 +31,7 @@ if (!$is_logged_in) {
 // Logout
 if (isset($_GET['logout'])) {
     session_destroy();
-    header('Location: admin.php');
+    header('Location: admin');
     exit;
 }
 
@@ -483,7 +483,7 @@ $conn->close();
       <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
     </form>
 
-    <a href="index.php" style="display: block; margin-top: 16px; color: var(--primary); text-decoration: none; font-size: 0.85rem;">← Back to Home</a>
+    <a href="index" style="display: block; margin-top: 16px; color: var(--primary); text-decoration: none; font-size: 0.85rem;">← Back to Home</a>
   </div>
 </div>
 
@@ -493,7 +493,7 @@ $conn->close();
   <nav class="navbar">
     <div class="logo">Pay<span>ou</span> Admin</div>
     <div class="nav-links">
-      <a href="index.php">View Site</a>
+      <a href="index">View Site</a>
       <a href="?logout=1" class="btn btn-logout">Logout</a>
     </div>
   </nav>
@@ -503,9 +503,9 @@ $conn->close();
   <?php endif; ?>
 
   <div class="admin-tabs">
-    <a href="admin.php?tab=offers" class="tab-btn <?php echo $active_tab === 'offers' ? 'active' : ''; ?>">Offers</a>
-    <a href="admin.php?tab=categories" class="tab-btn <?php echo $active_tab === 'categories' ? 'active' : ''; ?>">Categories</a>
-    <a href="admin.php?tab=banners" class="tab-btn <?php echo $active_tab === 'banners' ? 'active' : ''; ?>">Banners</a>
+    <a href="admin?tab=offers" class="tab-btn <?php echo $active_tab === 'offers' ? 'active' : ''; ?>">Offers</a>
+    <a href="admin?tab=categories" class="tab-btn <?php echo $active_tab === 'categories' ? 'active' : ''; ?>">Categories</a>
+    <a href="admin?tab=banners" class="tab-btn <?php echo $active_tab === 'banners' ? 'active' : ''; ?>">Banners</a>
   </div>
 
   <?php if ($active_tab === 'banners'): ?>
@@ -591,7 +591,7 @@ $conn->close();
         </div>
         <button type="submit" name="save_category" class="btn btn-primary">Save</button>
       </div>
-      <a href="admin.php?tab=categories" class="btn btn-secondary btn-sm" style="margin-top: 12px;">Cancel</a>
+      <a href="admin?tab=categories" class="btn btn-secondary btn-sm" style="margin-top: 12px;">Cancel</a>
     </form>
     <?php endif; ?>
     
@@ -631,7 +631,7 @@ $conn->close();
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 class="card-title" style="margin: 0;"><?php echo ($edit_offer && $edit_offer['id'] > 0) ? 'Edit Offer' : 'Add New Offer'; ?></h2>
-      <a href="admin.php?tab=offers" class="btn btn-secondary btn-sm">Cancel</a>
+      <a href="admin?tab=offers" class="btn btn-secondary btn-sm">Cancel</a>
     </div>
     
     <form method="post" enctype="multipart/form-data">
@@ -826,7 +826,7 @@ $conn->close();
       
       <div style="margin-top: 24px; display: flex; gap: 12px;">
         <button type="submit" name="save_offer" class="btn btn-primary">Save Offer</button>
-        <a href="admin.php" class="btn btn-secondary">Cancel</a>
+        <a href="admin" class="btn btn-secondary">Cancel</a>
       </div>
     </form>
   </div>
@@ -932,7 +932,7 @@ $conn->close();
   <?php endif; ?>
   
   <div style="text-align: center; padding: 20px; color: var(--text-sub); font-size: 0.75rem;">
-    <a href="index.php" style="color: var(--primary); text-decoration: none;">View Website</a>
+    <a href="index" style="color: var(--primary); text-decoration: none;">View Website</a>
   </div>
 </div>
 
