@@ -467,7 +467,7 @@ $totalSlides = (!empty($offer['video_file']) || !empty($offer['logo_image'])) ? 
       <p class="desc-text"><?php echo nl2br(htmlspecialchars($offer['description'])); ?></p>
       <div class="stats-row" style="margin-top:16px;">
         <div class="stat-pill"><div class="sv"><?php echo formatNumber($offer['claimed_count']); ?></div><div class="sl">People Claimed</div></div>
-        <div class="stat-pill"><div class="sv"><?php echo $offer['rating'] > 0 ? $offer['rating'] . '★' : 'N/A'; ?></div><div class="sl">Avg Rating</div></div>
+        <!-- <div class="stat-pill"><div class="sv"><?php echo $offer['rating'] > 0 ? $offer['rating'] . '★' : 'N/A'; ?></div><div class="sl">Avg Rating</div></div> -->
         <div class="stat-pill"><div class="sv"><?php echo $cashback_display; ?></div><div class="sl">Max Cashback</div></div>
         <div class="stat-pill" style="background:<?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '#dcfce7' : '#fef3c7'; ?>;">
           <div class="sv" style="color:<?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '#166534' : '#92400e'; ?>;"><?php echo ($offer['payout_type'] ?? 'instant') === 'instant' ? '⚡ Instant' : '⏱ 24-72h'; ?></div>
