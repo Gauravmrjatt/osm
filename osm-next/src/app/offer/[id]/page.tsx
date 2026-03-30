@@ -221,36 +221,6 @@ export default function OfferPage() {
           </div>
         </div>
 
-        {/* Steps / How to Claim */}
-        {offer.steps && offer.steps.length > 0 && (
-          <div className="bg-[var(--bg-card)] rounded-[var(--radius)] p-4.5 border border-[var(--border)]">
-            <h3 className="font-bold text-[0.95rem] text-[var(--text)] mb-3.5 flex items-center gap-2">
-              <CheckCircle className="w-4.5 h-4.5 text-[var(--primary-light)]" />
-              How to Claim
-            </h3>
-            <div className="space-y-3">
-              {offer.steps.map((step: any, index: number) => (
-                <div key={index} className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-white flex items-center justify-center text-xs font-bold">
-                    {step.step_number}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[0.82rem] font-semibold text-[var(--text)]">{step.step_title}</p>
-                    {step.step_description && (
-                      <p className="text-[0.75rem] text-[var(--text-sub)] mt-0.5">{step.step_description}</p>
-                    )}
-                    {step.step_time && (
-                      <p className="text-[0.7rem] text-[var(--primary-light)] mt-1 flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {step.step_time}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* CTA Buttons */}
         <div className="flex flex-col gap-2.5 mb-4">
           {expired ? (
