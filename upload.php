@@ -38,11 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowed_images = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         
         // Validate MIME type
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime_type = $finfo->file($_FILES['logo_image']['tmp_name']);
-        $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (class_exists('finfo')) {
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime_type = $finfo->file($_FILES['logo_image']['tmp_name']);
+            $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mime_type, $allowed_mimes)) {
+                $response['error'] = 'Invalid image format';
+                echo json_encode($response);
+                exit;
+            }
+        }
         
-        if (!in_array($ext, $allowed_images) || !in_array($mime_type, $allowed_mimes)) {
+        if (!in_array($ext, $allowed_images)) {
             $response['error'] = 'Invalid image format';
             echo json_encode($response);
             exit;
@@ -69,11 +76,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowed_videos = ['mp4', 'webm'];
         
         // Validate MIME type
-        $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime_type = $finfo->file($_FILES['video_file']['tmp_name']);
-        $allowed_mimes = ['video/mp4', 'video/webm'];
+        if (class_exists('finfo')) {
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime_type = $finfo->file($_FILES['video_file']['tmp_name']);
+            $allowed_mimes = ['video/mp4', 'video/webm'];
+            if (!in_array($mime_type, $allowed_mimes)) {
+                $response['error'] = 'Invalid video format';
+                echo json_encode($response);
+                exit;
+            }
+        }
         
-        if (!in_array($ext, $allowed_videos) || !in_array($mime_type, $allowed_mimes)) {
+        if (!in_array($ext, $allowed_videos)) {
             $response['error'] = 'Invalid video format';
             echo json_encode($response);
             exit;
