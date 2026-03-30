@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Copy, CheckCircle, Clock, DollarSign, ExternalLink, X } from 'lucide-react';
 import { formatNumber, isExpired, getDaysRemaining } from '@/lib/utils';
+import { OfferDetailSkeleton } from '@/components/ui/skeleton';
 
 interface OfferStep {
   step_number: number;
@@ -98,8 +99,12 @@ export default function OfferPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
+      <div className="min-h-screen relative">
+        <div className="fixed inset-0 dotted-grid dotted-grid-mask pointer-events-none z-0" />
+        <div className="fixed -top-1/2 left-1/2 -translate-x-1/2 w-[120vmin] h-[120vmin] rounded-full radial-spotlight-blue blur-[50px] pointer-events-none z-0" />
+        <div className="max-w-[600px] mx-auto p-4 relative z-10">
+          <OfferDetailSkeleton />
+        </div>
       </div>
     );
   }
@@ -125,7 +130,7 @@ export default function OfferPage() {
     <div className="min-h-screen">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-[var(--border)] bg-[rgba(11,15,20,0.9)] h-[60px] flex items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 bg-white/8 text-[var(--text)] px-3.5 py-2 rounded-xl text-[0.8rem] font-semibold transition-all hover:bg-[var(--primary)]">
+        <Link href="/" className="flex items-center gap-2 bg-[var(--accent)] text-[var(--foreground)] px-3.5 py-2 rounded-xl text-[0.8rem] font-semibold transition-all hover:bg-[var(--primary)]">
           <ArrowLeft className="w-4 h-4" />
           Back
         </Link>
@@ -151,7 +156,7 @@ export default function OfferPage() {
 
         {/* Brand Info */}
         <div className="bg-[var(--bg-card)] rounded-[var(--radius)] p-4 flex items-center gap-3.5 border border-[var(--border)]">
-          <div className="w-14 h-14 rounded-[0.875rem] bg-white/5 flex items-center justify-center text-[1.8rem] flex-shrink-0">
+          <div className="w-14 h-14 rounded-[0.875rem] bg-[var(--accent)] flex items-center justify-center text-[1.8rem] flex-shrink-0">
             {offer.logo_image ? (
               <img src={`/uploads/${offer.logo_image}`} alt={offer.brand_name} className="w-full h-full object-cover rounded-[0.875rem]" />
             ) : (
@@ -176,7 +181,7 @@ export default function OfferPage() {
               </span>
             )}
             {expired && (
-              <span className="text-[0.62rem] font-bold bg-[rgba(239,68,68,0.12)] text-red-500 px-2.5 py-1 rounded-lg">
+              <span className="text-[0.62rem] font-bold bg-[var(--destructive)]/10 text-[var(--destructive)] px-2.5 py-1 rounded-lg">
                 ❌ Expired
               </span>
             )}
@@ -193,19 +198,19 @@ export default function OfferPage() {
             {offer.description}
           </p>
           <div className="flex gap-2.5 mt-4">
-            <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center border border-[var(--border)]">
+            <div className="flex-1 bg-[var(--accent)] rounded-xl p-3 text-center border border-[var(--border)]">
               <div className="font-extrabold text-[1rem] text-[var(--primary-light)]">
                 {formatNumber(offer.claimed_count)}
               </div>
               <div className="text-[0.6rem] text-[var(--text-sub)] mt-0.5">Claimed</div>
             </div>
-            <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center border border-[var(--border)]">
+            <div className="flex-1 bg-[var(--accent)] rounded-xl p-3 text-center border border-[var(--border)]">
               <div className="font-extrabold text-[1rem] text-[var(--primary-light)]">
                 {cashbackDisplay}
               </div>
               <div className="text-[0.6rem] text-[var(--text-sub)] mt-0.5">Cashback</div>
             </div>
-            <div className="flex-1 bg-white/[0.04] rounded-xl p-3 text-center border border-[var(--border)]">
+            <div className="flex-1 bg-[var(--accent)] rounded-xl p-3 text-center border border-[var(--border)]">
               <div className="font-extrabold text-[1rem] text-[var(--primary-light)]">
                 {offer.payout_type === 'instant' ? '⚡' : '⏱'}
               </div>
@@ -219,7 +224,7 @@ export default function OfferPage() {
         {/* CTA Buttons */}
         <div className="flex flex-col gap-2.5 mb-4">
           {expired ? (
-            <button className="w-full py-4 rounded-[0.875rem] bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold text-[0.95rem] cursor-not-allowed flex items-center justify-center gap-2.5" disabled>
+            <button className="w-full py-4 rounded-[0.875rem] bg-gradient-to-r from-[var(--muted)] to-[var(--muted-foreground)] text-white font-bold text-[0.95rem] cursor-not-allowed flex items-center justify-center gap-2.5" disabled>
               <X className="w-4.5 h-4.5" />
               Offer Expired
             </button>
@@ -378,13 +383,13 @@ export default function OfferPage() {
             <p className="text-[0.8rem] text-[var(--text-sub)] leading-relaxed mb-5">
               You'll be redirected to <strong>{offer.brand_name}</strong>. Make sure to complete all the steps so your <strong>{cashbackDisplay} cashback</strong> gets tracked!
             </p>
-            <div className="text-[0.75rem] text-amber-400 mt-2.5 p-2.5 bg-amber-400/10 rounded-lg">
+            <div className="text-[0.75rem] text-[var(--warning)] mt-2.5 p-2.5 bg-[var(--warning)]/10 rounded-lg">
               ⚠️ Please read all steps and Terms & Conditions carefully before proceeding. Cashback will only be credited if all instructions are followed correctly.
             </div>
             <div className="flex gap-2.5 mt-5">
               <button 
                 onClick={closeModal}
-                className="flex-1 py-3 border border-white/10 rounded-xl bg-transparent text-[var(--text-sub)] font-semibold text-[0.85rem]"
+                className="flex-1 py-3 border border-[var(--border-color)] rounded-xl bg-transparent text-[var(--text-sub)] font-semibold text-[0.85rem]"
               >
                 Cancel
               </button>

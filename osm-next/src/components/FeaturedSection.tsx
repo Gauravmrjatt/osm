@@ -42,7 +42,7 @@ export default function FeaturedSection({ offers }: { offers: FeaturedOffer[] })
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-white/5 text-2xl">
+                  <div className="w-full h-full flex items-center justify-center bg-[var(--accent)] text-2xl">
                     {offer.brand_emoji}
                   </div>
                 )}

@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     
     const logoImage = formData.get('logo_image') as File | null;
     const videoFile = formData.get('video_file') as File | null;
+    const bannerImage = formData.get('banner_image') as File | null;
     
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     
@@ -17,12 +18,13 @@ export async function POST(request: NextRequest) {
       // Directory might already exist
     }
     
-    if (logoImage) {
-      const bytes = await logoImage.arrayBuffer();
+    if (logoImage || bannerImage) {
+      const file = (logoImage || bannerImage)!;
+      const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       
-      const ext = logoImage.name.split('.').pop()?.toLowerCase();
-      const allowedImages = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      const allowedImages = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
       
       if (!ext || !allowedImages.includes(ext)) {
         return NextResponse.json({ success: false, error: 'Invalid image format' }, { status: 400 });

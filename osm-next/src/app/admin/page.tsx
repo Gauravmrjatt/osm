@@ -1,23 +1,57 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { FileUpload } from '@/components/ui/file-upload';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Skeleton, AdminTableSkeleton } from '@/components/ui/skeleton';
+import { 
+  Tag, 
+  FolderCog, 
+  Image as ImageIcon, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Upload, 
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock
+} from 'lucide-react';
 
 const ADMIN_PASSWORD = 'Abduu@heh6262';
 
 interface Offer {
   _id: string;
   title: string;
+  description?: string;
   brand_name: string;
   brand_emoji: string;
   category: string;
+  logo_image: string;
+  video_file: string;
   max_cashback: number;
   cashback_rate: number;
   cashback_type: string;
+  min_order_amount?: number;
   expiry_date: string;
+  promo_code?: string;
+  redirect_url?: string;
+  link2?: string;
+  claimed_count?: number;
+  rating?: number;
   status: string;
   is_featured: boolean;
+  is_verified?: boolean;
+  is_popular?: boolean;
+  payout_type?: string;
 }
 
 interface Category {
@@ -36,7 +70,6 @@ interface Banner {
 }
 
 export default function AdminPage() {
-  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('offers');
@@ -46,7 +79,15 @@ export default function AdminPage() {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [showBannerDialog, setShowBannerDialog] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [offerLogoImage, setOfferLogoImage] = useState('');
+  const [offerVideoFile, setOfferVideoFile] = useState('');
+  const [bannerFile, setBannerFile] = useState('');
+  const [bannerLink, setBannerLink] = useState('');
+  const [bannerOrder, setBannerOrder] = useState('');
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('admin_logged_in');
@@ -151,8 +192,13 @@ export default function AdminPage() {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
     
+    const logoImageFilename = offerLogoImage || editingOffer?.logo_image || '';
+    const videoFileFilename = offerVideoFile || editingOffer?.video_file || '';
+    
     const offerData = {
       ...data,
+      logo_image: logoImageFilename,
+      video_file: videoFileFilename,
       max_cashback: Number(data.max_cashback),
       cashback_rate: Number(data.cashback_rate),
       min_order_amount: Number(data.min_order_amount),
@@ -178,7 +224,10 @@ export default function AdminPage() {
       
       if (res.ok) {
         setMessage({ text: 'Offer saved', type: 'success' });
+        setShowOfferDialog(false);
         setEditingOffer(null);
+        setOfferLogoImage('');
+        setOfferVideoFile('');
         fetchData();
       }
     } catch (error) {
@@ -208,6 +257,7 @@ export default function AdminPage() {
       
       if (res.ok) {
         setMessage({ text: 'Category saved', type: 'success' });
+        setShowCategoryDialog(false);
         setEditingCategory(null);
         fetchData();
       }
@@ -218,48 +268,98 @@ export default function AdminPage() {
 
   const handleBannerUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const file = formData.get('banner_image') as File;
     
-    if (!file || !file.name) {
+    if (!bannerFile) {
       setMessage({ text: 'Please select a file', type: 'error' });
       return;
     }
 
     try {
-      const uploadRes = await fetch('/api/upload', {
+      const bannerRes = await fetch('/api/banners', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: bannerFile,
+          link_url: bannerLink,
+          sort_order: Number(bannerOrder) || banners.length + 1,
+          status: 'active',
+        }),
       });
       
-      const uploadData = await uploadRes.json();
-      
-      if (uploadData.success) {
-        const bannerRes = await fetch('/api/banners', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image_url: uploadData.filename,
-            link_url: formData.get('banner_link'),
-            sort_order: Number(formData.get('banner_order')) || banners.length + 1,
-            status: 'active',
-          }),
-        });
-        
-        if (bannerRes.ok) {
-          setMessage({ text: 'Banner uploaded', type: 'success' });
-          fetchData();
-        }
+      if (bannerRes.ok) {
+        setMessage({ text: 'Banner uploaded', type: 'success' });
+        setBannerFile('');
+        setBannerLink('');
+        setBannerOrder('');
+        setShowBannerDialog(false);
+        fetchData();
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
+  const openAddOffer = () => {
+    setEditingOffer({} as Offer);
+    setOfferLogoImage('');
+    setOfferVideoFile('');
+    setShowOfferDialog(true);
+  };
+
+  const openEditOffer = (offer: Offer) => {
+    setEditingOffer(offer);
+    setOfferLogoImage('');
+    setOfferVideoFile('');
+    setShowOfferDialog(true);
+  };
+
+  const openAddCategory = () => {
+    setEditingCategory({} as Category);
+    setShowCategoryDialog(true);
+  };
+
+  const openEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setShowCategoryDialog(true);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge variant="success" className="gap-1"><CheckCircle className="w-3 h-3" /> Active</Badge>;
+      case 'expired':
+        return <Badge variant="destructive" className="gap-1"><XCircle className="w-3 h-3" /> Expired</Badge>;
+      case 'draft':
+        return <Badge variant="warning" className="gap-1"><Clock className="w-3 h-3" /> Draft</Badge>;
+      case 'inactive':
+        return <Badge variant="secondary" className="gap-1"><XCircle className="w-3 h-3" /> Inactive</Badge>;
+      default:
+        return <Badge>{status}</Badge>;
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--primary)]"></div>
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-4">
+        <Card className="max-w-[1400px] mx-auto">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-6">
+              <Skeleton className="w-48 h-10" />
+              <div className="flex gap-2">
+                <Skeleton className="w-20 h-10" />
+                <Skeleton className="w-20 h-10" />
+              </div>
+            </div>
+            <TabsList className="mb-6">
+              <TabsTrigger value="offers">Offers</TabsTrigger>
+              <TabsTrigger value="categories">Categories</TabsTrigger>
+              <TabsTrigger value="banners">Banners</TabsTrigger>
+            </TabsList>
+            <TabsContent value="offers">
+              <AdminTableSkeleton rows={8} />
+            </TabsContent>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -267,281 +367,496 @@ export default function AdminPage() {
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white rounded-[var(--radius)] p-10 max-w-[400px] w-full text-center shadow-lg">
-          <h2 className="font-extrabold text-[1.4rem] text-[var(--primary)] mb-2">
-            OS<span className="text-[var(--primary-light)]">M</span> Admin
-          </h2>
-          <p className="text-[var(--text-sub)] mb-6">Enter password to access admin panel</p>
+        <Card className="w-full max-w-[400px]">
+          <CardHeader className="text-center">
+            <CardTitle className="text-[1.4rem] text-[var(--primary)]">
+              OS<span className="text-[var(--primary-light)]">M</span> Admin
+            </CardTitle>
+            <CardDescription>Enter password to access admin panel</CardDescription>
+          </CardHeader>
+          <CardContent>
           {message.text && (
-            <div className={`p-3 rounded-lg mb-4 text-sm font-semibold ${message.type === 'error' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+            <div className={`p-3 rounded-lg mb-4 text-sm font-semibold ${message.type === 'error' ? 'bg-[var(--destructive)] text-white' : 'bg-[var(--success)] text-white'}`}>
               {message.text}
             </div>
           )}
           <form onSubmit={handleLogin}>
-            <input
+            <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              className="w-full p-3.5 border border-gray-200 rounded-xl text-center text-lg mb-4"
-              required
+              placeholder="Enter admin password"
+              className="w-full mb-4 text-center"
             />
-            <button type="submit" className="w-full py-3 bg-[var(--primary)] text-white font-bold rounded-xl">
+            <Button type="submit" className="w-full">
               Login
-            </button>
+            </Button>
           </form>
-          <Link href="/" className="block mt-4 text-[var(--primary)] text-sm">← Back to Home</Link>
-        </div>
+          <Link href="/" className="block mt-4 text-[var(--primary)] text-sm text-center">← Back to Home</Link>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] text-[#1e1b4b]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Navbar */}
-      <nav className="bg-white rounded-[var(--radius)] px-6 py-4 flex items-center justify-between mb-6 shadow-sm mx-4 mt-4">
-        <div className="font-extrabold text-[1.4rem] text-[var(--primary)]">
-          OS<span className="text-[var(--primary-light)]">M</span> Admin
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-[var(--text-sub)] font-semibold text-sm hover:text-[var(--primary)]">View Site</Link>
-          <button onClick={handleLogout} className="px-4 py-2 bg-red-100 text-red-600 font-semibold rounded-lg text-sm">Logout</button>
-        </div>
-      </nav>
+      <Card className="mx-4 mt-4 mb-4">
+        <CardContent className="flex items-center justify-between p-4">
+          <div className="font-extrabold text-[1.4rem] text-[var(--primary)]">
+            OS<span className="text-[var(--primary-light)]">M</span> Admin
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href="/">
+              <Button variant="ghost" size="sm">View Site</Button>
+            </Link>
+            <Button variant="destructive" size="sm" onClick={handleLogout}>Logout</Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {message.text && (
-        <div className={`mx-4 p-3 rounded-lg mb-4 text-sm font-semibold max-w-[1200px] ${message.type === 'error' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+        <div className={`mx-4 p-3 rounded-lg mb-4 text-sm font-semibold max-w-[1200px] ${message.type === 'error' ? 'bg-[var(--destructive)] text-white' : 'bg-[var(--success)] text-white'}`}>
           {message.text}
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-2 mx-4 mb-6 overflow-x-auto">
-        {['offers', 'categories', 'banners'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2.5 rounded-[10px] font-semibold text-sm whitespace-nowrap ${
-              activeTab === tab ? 'bg-[var(--primary)] text-white' : 'bg-white text-[var(--text-sub)] shadow-sm'
-            }`}
-          >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
-      </div>
+      <div className="px-4 pb-8 max-w-[1400px] mx-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="offers">
+              <Tag className="w-4 h-4 mr-2" />
+              Offers
+              <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-[var(--primary-foreground)] text-[var(--primary)]">
+                {offers.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="categories">
+              <FolderCog className="w-4 h-4 mr-2" />
+              Categories
+              <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-[var(--primary-foreground)] text-[var(--primary)]">
+                {categories.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="banners">
+              <ImageIcon className="w-4 h-4 mr-2" />
+              Banners
+              <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-[var(--primary-foreground)] text-[var(--primary)]">
+                {banners.length}
+              </span>
+            </TabsTrigger>
+          </TabsList>
 
-      <div className="px-4 pb-8 max-w-[1200px] mx-auto">
-        {/* Offers Tab */}
-        {activeTab === 'offers' && (
-          <div className="bg-white rounded-[var(--radius)] p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-extrabold text-[1.1rem]">All Offers</h2>
-              <button onClick={() => setEditingOffer({} as Offer)} className="px-4 py-2 bg-[var(--primary)] text-white font-bold rounded-lg text-sm">
-                + Add New Offer
-              </button>
-            </div>
+          {/* Offers Tab */}
+          <TabsContent value="offers">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>All Offers</CardTitle>
+                  <CardDescription>Manage your offers and cashback deals</CardDescription>
+                </div>
+                <Button onClick={openAddOffer}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Offer
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b bg-[var(--muted)]">
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">ID</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Title</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Brand</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Category</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Cashback</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Expires</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Status</th>
+                        <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {offers.map((offer, idx) => (
+                        <tr key={offer._id} className={`border-b hover:bg-[var(--accent)] transition-colors ${idx % 2 === 0 ? 'bg-[var(--background)]' : 'bg-[var(--muted)]/30'}`}>
+                          <td className="py-3 px-4 text-sm font-mono text-[var(--text-sub)]">{offer._id.slice(-6)}</td>
+                          <td className="py-3 px-4 text-sm max-w-[200px] truncate font-medium">{offer.title}</td>
+                          <td className="py-3 px-4 text-sm">{offer.brand_emoji} {offer.brand_name}</td>
+                          <td className="py-3 px-4 text-sm">
+                            <Badge variant="outline">{offer.category}</Badge>
+                          </td>
+                          <td className="py-3 px-4 text-sm font-bold text-[var(--success)]">
+                            {offer.cashback_type === 'flat' ? `₹${offer.max_cashback}` : `${offer.cashback_rate}%`}
+                          </td>
+                          <td className="py-3 px-4 text-sm text-[var(--text-sub)]">
+                            {new Date(offer.expiry_date).toLocaleDateString('en-GB')}
+                          </td>
+                          <td className="py-3 px-4">{getStatusBadge(offer.status)}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" onClick={() => openEditOffer(offer)}>
+                                <Edit className="w-3 h-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button variant="destructive" size="sm" onClick={() => deleteOffer(offer._id)}>
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {offers.length === 0 && (
+                    <div className="text-center py-12 text-[var(--text-sub)]">
+                      <Tag className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p>No offers yet. Add your first offer!</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {/* Edit/Add Offer Form */}
-            {editingOffer !== null && (
-              <form onSubmit={handleSaveOffer} className="bg-[#f5f6fa] p-5 rounded-xl mb-6">
-                <h3 className="font-bold text-sm mb-4">{editingOffer._id ? 'Edit Offer' : 'Add New Offer'}</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input name="title" defaultValue={editingOffer.title} placeholder="Title *" className="p-2.5 border border-gray-200 rounded-lg text-sm" required />
-                  <input name="brand_name" defaultValue={editingOffer.brand_name} placeholder="Brand Name *" className="p-2.5 border border-gray-200 rounded-lg text-sm" required />
-                  <input name="brand_emoji" defaultValue={editingOffer.brand_emoji || '🎁'} placeholder="Brand Emoji" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="logo_image" defaultValue={editingOffer.logo_image} placeholder="Logo Image Filename" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <select name="category" defaultValue={editingOffer.category || 'General'} className="p-2.5 border border-gray-200 rounded-lg text-sm">
-                    {categories.map(c => <option key={c._id} value={c.name}>{c.emoji} {c.name}</option>)}
-                  </select>
-                  <input name="description" defaultValue={editingOffer.description} placeholder="Description" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="min_order_amount" type="number" defaultValue={editingOffer.min_order_amount || 0} placeholder="Min Order Amount" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="max_cashback" type="number" defaultValue={editingOffer.max_cashback || 0} placeholder="Max Cashback" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="cashback_rate" type="number" defaultValue={editingOffer.cashback_rate || 0} placeholder="Cashback Rate %" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <select name="cashback_type" defaultValue={editingOffer.cashback_type || 'flat'} className="p-2.5 border border-gray-200 rounded-lg text-sm">
-                    <option value="flat">Flat Amount</option>
-                    <option value="percentage">Percentage</option>
-                  </select>
-                  <input name="expiry_date" type="date" defaultValue={editingOffer.expiry_date?.split('T')[0]} className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="promo_code" defaultValue={editingOffer.promo_code} placeholder="Promo Code" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="redirect_url" defaultValue={editingOffer.redirect_url} placeholder="Redirect URL" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="link2" defaultValue={editingOffer.link2} placeholder="Link 2 (Optional)" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="claimed_count" type="number" defaultValue={editingOffer.claimed_count || 0} placeholder="Claimed Count" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="rating" type="number" step="0.1" defaultValue={editingOffer.rating || 0} placeholder="Rating" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <select name="status" defaultValue={editingOffer.status || 'active'} className="p-2.5 border border-gray-200 rounded-lg text-sm">
-                    <option value="active">Active</option>
-                    <option value="expired">Expired</option>
-                    <option value="draft">Draft</option>
-                  </select>
-                  <select name="payout_type" defaultValue={editingOffer.payout_type || 'instant'} className="p-2.5 border border-gray-200 rounded-lg text-sm">
-                    <option value="instant">Instant</option>
-                    <option value="24-72h">24-72 Hours</option>
-                  </select>
+          {/* Categories Tab */}
+          <TabsContent value="categories">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Manage Categories</CardTitle>
+                  <CardDescription>Organize your offers by categories</CardDescription>
                 </div>
-                <div className="flex gap-4 mt-4">
-                  <label className="flex items-center gap-2 text-sm font-medium">
-                    <input type="checkbox" name="is_featured" defaultChecked={editingOffer.is_featured} /> Featured
-                  </label>
-                  <label className="flex items-center gap-2 text-sm font-medium">
-                    <input type="checkbox" name="is_verified" defaultChecked={editingOffer.is_verified} /> Verified
-                  </label>
-                  <label className="flex items-center gap-2 text-sm font-medium">
-                    <input type="checkbox" name="is_popular" defaultChecked={editingOffer.is_popular} /> Popular
-                  </label>
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <button type="submit" className="px-6 py-2.5 bg-[var(--primary)] text-white font-bold rounded-lg text-sm">Save</button>
-                  <button type="button" onClick={() => setEditingOffer(null)} className="px-6 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg text-sm">Cancel</button>
-                </div>
-              </form>
-            )}
-
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">ID</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Title</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Brand</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Category</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Cashback</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Expires</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Status</th>
-                    <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {offers.map(offer => (
-                    <tr key={offer._id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-3 text-sm">{offer._id.slice(-6)}</td>
-                      <td className="py-3 px-3 text-sm max-w-[200px] truncate">{offer.title}</td>
-                      <td className="py-3 px-3 text-sm">{offer.brand_emoji} {offer.brand_name}</td>
-                      <td className="py-3 px-3 text-sm">{offer.category}</td>
-                      <td className="py-3 px-3 text-sm font-bold">{offer.cashback_type === 'flat' ? `₹${offer.max_cashback}` : `${offer.cashback_rate}%`}</td>
-                      <td className="py-3 px-3 text-sm">{new Date(offer.expiry_date).toLocaleDateString('en-GB')}</td>
-                      <td className="py-3 px-3">
-                        <span className={`px-2.5 py-1 rounded-[20px] text-[0.7rem] font-bold ${
-                          offer.status === 'active' ? 'bg-green-100 text-green-600' : 
-                          offer.status === 'expired' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'
-                        }`}>
-                          {offer.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex gap-2">
-                          <button onClick={() => setEditingOffer(offer)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">Edit</button>
-                          <button onClick={() => deleteOffer(offer._id)} className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-xs font-medium">Delete</button>
-                        </div>
-                      </td>
+                <Button onClick={openAddCategory}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Category
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-[var(--muted)]">
+                      <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Order</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Emoji</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Name</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Offers</th>
+                      <th className="text-left py-3 px-4 text-xs font-bold text-[var(--muted-foreground)] uppercase tracking-wider">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Categories Tab */}
-        {activeTab === 'categories' && (
-          <div className="bg-white rounded-[var(--radius)] p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-extrabold text-[1.1rem]">Manage Categories</h2>
-              <button onClick={() => setEditingCategory({} as Category)} className="px-4 py-2 bg-[var(--primary)] text-white font-bold rounded-lg text-sm">
-                + Add Category
-              </button>
-            </div>
-
-            {editingCategory !== null && (
-              <form onSubmit={handleSaveCategory} className="bg-[#f5f6fa] p-5 rounded-xl mb-6">
-                <h3 className="font-bold text-sm mb-4">{editingCategory._id ? 'Edit Category' : 'Add Category'}</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <input name="name" defaultValue={editingCategory.name} placeholder="Category Name" className="p-2.5 border border-gray-200 rounded-lg text-sm" required />
-                  <input name="emoji" defaultValue={editingCategory.emoji || '📌'} placeholder="Emoji" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                  <input name="sort_order" type="number" defaultValue={editingCategory.sort_order || categories.length + 1} placeholder="Sort Order" className="p-2.5 border border-gray-200 rounded-lg text-sm" />
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <button type="submit" className="px-6 py-2.5 bg-[var(--primary)] text-white font-bold rounded-lg text-sm">Save</button>
-                  <button type="button" onClick={() => setEditingCategory(null)} className="px-6 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg text-sm">Cancel</button>
-                </div>
-              </form>
-            )}
-
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Order</th>
-                  <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Emoji</th>
-                  <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Name</th>
-                  <th className="text-left py-3 px-3 text-xs font-bold text-[var(--text-sub)] uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categories.map(cat => (
-                  <tr key={cat._id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-3 text-sm">{cat.sort_order}</td>
-                    <td className="py-3 px-3 text-xl">{cat.emoji}</td>
-                    <td className="py-3 px-3 text-sm font-semibold">{cat.name}</td>
-                    <td className="py-3 px-3">
-                      <div className="flex gap-2">
-                        <button onClick={() => setEditingCategory(cat)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">Edit</button>
-                        <button onClick={() => deleteCategory(cat._id)} className="px-3 py-1 bg-red-100 text-red-600 rounded-md text-xs font-medium">Delete</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Banners Tab */}
-        {activeTab === 'banners' && (
-          <div className="bg-white rounded-[var(--radius)] p-6 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="font-extrabold text-[1.1rem]">Manage Banners</h2>
-            </div>
-
-            <form onSubmit={handleBannerUpload} className="bg-[#f5f6fa] p-5 rounded-xl mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--text-sub)] mb-1">Upload Banner</label>
-                  <input type="file" name="banner_image" accept="image/*" className="p-2.5 border border-gray-200 rounded-lg text-sm w-full" required />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--text-sub)] mb-1">Link URL</label>
-                  <input type="text" name="banner_link" placeholder="https://example.com" className="p-2.5 border border-gray-200 rounded-lg text-sm w-full" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[var(--text-sub)] mb-1">Order</label>
-                  <input type="number" name="banner_order" defaultValue={banners.length + 1} className="p-2.5 border border-gray-200 rounded-lg text-sm w-full" />
-                </div>
-                <button type="submit" className="px-6 py-2.5 bg-[var(--primary)] text-white font-bold rounded-lg text-sm">Upload</button>
-              </div>
-            </form>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {banners.map(banner => (
-                <div key={banner._id} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <img src={`/uploads/${banner.image_url}`} alt="Banner" className="w-full h-[120px] object-cover" />
-                  <div className="p-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className={`px-2 py-1 rounded-[20px] text-[0.7rem] font-bold ${banner.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
-                        {banner.status}
-                      </span>
-                      <span className="text-xs text-[var(--text-sub)]">Order: {banner.sort_order}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => toggleBannerStatus(banner)} className="flex-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium">
-                        {banner.status === 'active' ? 'Disable' : 'Enable'}
-                      </button>
-                      <button onClick={() => deleteBanner(banner._id)} className="flex-1 px-3 py-1 bg-red-100 text-red-600 rounded-md text-xs font-medium">Delete</button>
-                    </div>
+                  </thead>
+                  <tbody>
+                    {categories.map((cat, idx) => (
+                      <tr key={cat._id} className={`border-b hover:bg-[var(--accent)] transition-colors ${idx % 2 === 0 ? 'bg-[var(--background)]' : 'bg-[var(--muted)]/30'}`}>
+                        <td className="py-3 px-4 text-sm font-mono text-[var(--text-sub)]">{cat.sort_order}</td>
+                        <td className="py-3 px-4 text-2xl">{cat.emoji}</td>
+                        <td className="py-3 px-4 text-sm font-semibold">{cat.name}</td>
+                        <td className="py-3 px-4 text-sm text-[var(--text-sub)]">
+                          {offers.filter(o => o.category === cat.name).length}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" onClick={() => openEditCategory(cat)}>
+                              <Edit className="w-3 h-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button variant="destructive" size="sm" onClick={() => deleteCategory(cat._id)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {categories.length === 0 && (
+                  <div className="text-center py-12 text-[var(--text-sub)]">
+                    <FolderCog className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No categories yet. Add your first category!</p>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Banners Tab */}
+          <TabsContent value="banners">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Manage Banners</CardTitle>
+                  <CardDescription>Upload and manage promotional banners</CardDescription>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+                <Button onClick={() => setShowBannerDialog(true)}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Banner
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {banners.map((banner) => (
+                    <div key={banner._id} className="border border-[var(--border-color)] rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="relative">
+                        <img src={`/uploads/${banner.image_url}`} alt="Banner" className="w-full h-[140px] object-cover" />
+                        <div className="absolute top-2 right-2">
+                          {getStatusBadge(banner.status)}
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-[var(--text-sub)]">Order: {banner.sort_order}</span>
+                          {banner.link_url && (
+                            <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--primary)] hover:underline flex items-center gap-1">
+                              <Eye className="w-3 h-3" /> View
+                            </a>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="flex-1" onClick={() => toggleBannerStatus(banner)}>
+                            {banner.status === 'active' ? (
+                              <>
+                                <XCircle className="w-3 h-3 mr-1" /> Disable
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-3 h-3 mr-1" /> Enable
+                              </>
+                            )}
+                          </Button>
+                          <Button variant="destructive" size="sm" onClick={() => deleteBanner(banner._id)}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {banners.length === 0 && (
+                  <div className="text-center py-12 text-[var(--text-sub)]">
+                    <ImageIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No banners yet. Upload your first banner!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
+
+      {/* Offer Dialog */}
+      <Dialog open={showOfferDialog} onOpenChange={setShowOfferDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingOffer?._id ? 'Edit Offer' : 'Add New Offer'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveOffer}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Title *</label>
+                <Input name="title" defaultValue={editingOffer?.title} placeholder="Offer Title" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Brand Name *</label>
+                <Input name="brand_name" defaultValue={editingOffer?.brand_name} placeholder="Brand Name" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Brand Emoji</label>
+                <Input name="brand_emoji" defaultValue={editingOffer?.brand_emoji || '🎁'} placeholder="🎁" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category</label>
+                <select 
+                  name="category" 
+                  defaultValue={editingOffer?.category || 'General'}
+                  className="w-full h-10 px-3 rounded-lg border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                >
+                  {categories.map(c => <option key={c._id} value={c.name}>{c.emoji} {c.name}</option>)}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Logo Image</label>
+                <FileUpload
+                  accept="image/*"
+                  label=""
+                  value={offerLogoImage || editingOffer?.logo_image || ''}
+                  onChange={(filename) => setOfferLogoImage(filename)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Video File</label>
+                <FileUpload
+                  accept="video/*"
+                  label=""
+                  value={offerVideoFile || editingOffer?.video_file || ''}
+                  onChange={(filename) => setOfferVideoFile(filename)}
+                  maxSize={50}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm font-medium">Description</label>
+                <Textarea name="description" defaultValue={editingOffer?.description} placeholder="Offer description" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Min Order Amount</label>
+                <Input name="min_order_amount" type="number" defaultValue={editingOffer?.min_order_amount || 0} placeholder="0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Max Cashback (₹)</label>
+                <Input name="max_cashback" type="number" defaultValue={editingOffer?.max_cashback || 0} placeholder="0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Cashback Rate (%)</label>
+                <Input name="cashback_rate" type="number" defaultValue={editingOffer?.cashback_rate || 0} placeholder="0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Cashback Type</label>
+                <select 
+                  name="cashback_type" 
+                  defaultValue={editingOffer?.cashback_type || 'flat'}
+                  className="w-full h-10 px-3 rounded-lg border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                >
+                  <option value="flat">Flat Amount</option>
+                  <option value="percentage">Percentage</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Expiry Date</label>
+                <Input name="expiry_date" type="date" defaultValue={editingOffer?.expiry_date?.split('T')[0]} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Promo Code</label>
+                <Input name="promo_code" defaultValue={editingOffer?.promo_code} placeholder="PROMO123" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Redirect URL</label>
+                <Input name="redirect_url" defaultValue={editingOffer?.redirect_url} placeholder="https://..." />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Link 2 (Optional)</label>
+                <Input name="link2" defaultValue={editingOffer?.link2} placeholder="https://..." />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Claimed Count</label>
+                <Input name="claimed_count" type="number" defaultValue={editingOffer?.claimed_count || 0} placeholder="0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Rating</label>
+                <Input name="rating" type="number" step="0.1" defaultValue={editingOffer?.rating || 0} placeholder="0" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <select 
+                  name="status" 
+                  defaultValue={editingOffer?.status || 'active'}
+                  className="w-full h-10 px-3 rounded-lg border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                >
+                  <option value="active">Active</option>
+                  <option value="expired">Expired</option>
+                  <option value="draft">Draft</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Payout Type</label>
+                <select 
+                  name="payout_type" 
+                  defaultValue={editingOffer?.payout_type || 'instant'}
+                  className="w-full h-10 px-3 rounded-lg border border-[var(--border-color)] bg-[var(--background)] text-[var(--foreground)]"
+                >
+                  <option value="instant">Instant</option>
+                  <option value="24-72h">24-72 Hours</option>
+                </select>
+              </div>
+              <div className="md:col-span-2 flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input type="checkbox" name="is_featured" defaultChecked={editingOffer?.is_featured} /> Featured
+                </label>
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input type="checkbox" name="is_verified" defaultChecked={editingOffer?.is_verified} /> Verified
+                </label>
+                <label className="flex items-center gap-2 text-sm font-medium">
+                  <input type="checkbox" name="is_popular" defaultChecked={editingOffer?.is_popular} /> Popular
+                </label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="secondary" onClick={() => setShowOfferDialog(false)}>Cancel</Button>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Category Dialog */}
+      <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingCategory?._id ? 'Edit Category' : 'Add Category'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveCategory}>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category Name</label>
+                <Input name="name" defaultValue={editingCategory?.name} placeholder="Category Name" required />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Emoji</label>
+                <Input name="emoji" defaultValue={editingCategory?.emoji || '📌'} placeholder="📌" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sort Order</label>
+                <Input name="sort_order" type="number" defaultValue={editingCategory?.sort_order || categories.length + 1} placeholder="1" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="secondary" onClick={() => setShowCategoryDialog(false)}>Cancel</Button>
+              <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Banner Upload Dialog */}
+      <Dialog open={showBannerDialog} onOpenChange={setShowBannerDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Banner</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleBannerUpload}>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Banner Image</label>
+                <FileUpload
+                  accept="image/*"
+                  label=""
+                  value={bannerFile}
+                  onChange={(filename) => setBannerFile(filename)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Link URL (Optional)</label>
+                <Input 
+                  type="text" 
+                  value={bannerLink}
+                  onChange={(e) => setBannerLink(e.target.value)}
+                  placeholder="https://example.com" 
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Sort Order</label>
+                <Input 
+                  type="number" 
+                  value={bannerOrder}
+                  onChange={(e) => setBannerOrder(e.target.value)}
+                  defaultValue={banners.length + 1}
+                  placeholder="1" 
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="secondary" onClick={() => setShowBannerDialog(false)}>Cancel</Button>
+              <Button type="submit" disabled={!bannerFile}>Upload</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

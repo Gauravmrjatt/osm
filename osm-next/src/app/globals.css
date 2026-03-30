@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --bg-dark: #05070A;
@@ -17,6 +20,49 @@
   
   --background: #05070A;
   --foreground: #FFFFFF;
+  --card: #0B0F14;
+  --card-foreground: #FFFFFF;
+  --popover: #0B0F14;
+  --popover-foreground: #FFFFFF;
+  --muted: #1A1F2E;
+  --muted-foreground: #9AA4B2;
+  --accent: #1A1F2E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border-color: rgba(255,255,255,0.08);
+  --input: rgba(255,255,255,0.08);
+  --ring: #1E6BFF;
+  --success: #00D26A;
+  --warning: #F59E0B;
+}
+
+.light {
+  --bg-dark: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --primary: #1E6BFF;
+  --primary-light: #3EA6FF;
+  --green: #00D26A;
+  --text: #0F172A;
+  --text-sub: #64748B;
+  --border: rgba(0,0,0,0.08);
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --glow: 0 0 10px rgba(30,107,255,0.2);
+  
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border-color: rgba(0,0,0,0.08);
+  --input: rgba(0,0,0,0.08);
 }
 
 @theme inline {
@@ -25,8 +71,22 @@
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
   --color-green: var(--green);
-  --color-card: var(--bg-card);
-  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border-color);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --radius: var(--radius);
 }
 
 body {
@@ -71,4 +131,47 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes spin-slow {
+  from { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+  to { transform: translateX(-50%) translateY(-50%) rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+/* Dotted Grid Background */
+.dotted-grid {
+  background-image: radial-gradient(rgba(255,255,255,0.08) 0.8px, transparent 0.8px);
+  background-size: 14px 14px;
+}
+
+.dotted-grid-mask {
+  mask-image: radial-gradient( circle at 50% 10%, rgba(0,0,0,1), rgba(0,0,0,0.2) 40%, rgba(0,0,0,0) 70% );
+  -webkit-mask-image: radial-gradient( circle at 50% 10%, rgba(0,0,0,1), rgba(0,0,0,0.2) 40%, rgba(0,0,0,0) 70% );
+}
+
+/* Radial Spotlight */
+.radial-spotlight {
+  background: radial-gradient(ellipse at center, var(--foreground) 0%, transparent 50%);
+  opacity: 0.1;
+}
+
+.radial-spotlight-blue {
+  background: radial-gradient(ellipse at center, var(--primary) 0%, transparent 50%);
+  opacity: 0.15;
+}
+
+/* Glass Card Effect */
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-header {
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 40%, rgba(0,0,0,0) 100%);
 }

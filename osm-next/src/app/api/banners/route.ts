@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { Banner } from '@/lib/models/Banner';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
-    const banners = await Banner.find({ status: 'active' }).sort({ sort_order: 1 }).lean();
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    
+    const query = status ? { status } : {};
+    const banners = await Banner.find(query).sort({ sort_order: 1 }).lean();
     
     return NextResponse.json(banners.map(banner => ({
       ...banner,

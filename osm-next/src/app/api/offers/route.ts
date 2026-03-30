@@ -9,11 +9,21 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category') || 'All';
     const sort = searchParams.get('sort') || 'newest';
+    const search = searchParams.get('search') || '';
     
     let query: Record<string, unknown> = { status: 'active' };
     
     if (category !== 'All') {
       query.category = category;
+    }
+    
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { brand_name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+      ];
     }
     
     let sortOption: Record<string, 1 | -1> = { created_at: -1 };
