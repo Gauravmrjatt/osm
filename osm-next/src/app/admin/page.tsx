@@ -28,6 +28,13 @@ import {
 
 const ADMIN_PASSWORD = 'Abduu@heh6262';
 
+interface OfferStep {
+  step_number: number;
+  step_title: string;
+  step_description?: string;
+  step_time?: string;
+}
+
 interface Offer {
   _id: string;
   title: string;
@@ -52,6 +59,7 @@ interface Offer {
   is_verified?: boolean;
   is_popular?: boolean;
   payout_type?: string;
+  steps?: OfferStep[];
 }
 
 interface Category {
@@ -85,6 +93,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [offerLogoImage, setOfferLogoImage] = useState('');
   const [offerVideoFile, setOfferVideoFile] = useState('');
+  const [offerSteps, setOfferSteps] = useState<OfferStep[]>([]);
   const [bannerFile, setBannerFile] = useState('');
   const [bannerLink, setBannerLink] = useState('');
   const [bannerOrder, setBannerOrder] = useState('');
@@ -199,6 +208,7 @@ export default function AdminPage() {
       ...data,
       logo_image: logoImageFilename,
       video_file: videoFileFilename,
+      steps: offerSteps,
       max_cashback: Number(data.max_cashback),
       cashback_rate: Number(data.cashback_rate),
       min_order_amount: Number(data.min_order_amount),
@@ -228,6 +238,7 @@ export default function AdminPage() {
         setEditingOffer(null);
         setOfferLogoImage('');
         setOfferVideoFile('');
+        setOfferSteps([]);
         fetchData();
       }
     } catch (error) {
@@ -303,6 +314,7 @@ export default function AdminPage() {
     setEditingOffer({} as Offer);
     setOfferLogoImage('');
     setOfferVideoFile('');
+    setOfferSteps([]);
     setShowOfferDialog(true);
   };
 
@@ -310,6 +322,7 @@ export default function AdminPage() {
     setEditingOffer(offer);
     setOfferLogoImage('');
     setOfferVideoFile('');
+    setOfferSteps(offer.steps || []);
     setShowOfferDialog(true);
   };
 
@@ -774,6 +787,63 @@ export default function AdminPage() {
                 <label className="flex items-center gap-2 text-sm font-medium">
                   <input type="checkbox" name="is_popular" defaultChecked={editingOffer?.is_popular} /> Popular
                 </label>
+              </div>
+              <div className="md:col-span-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Steps (How to Claim)</label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setOfferSteps([...offerSteps, { step_number: offerSteps.length + 1, step_title: '', step_description: '', step_time: '' }])}
+                  >
+                    <Upload className="w-4 h-4 mr-1" /> Add Step
+                  </Button>
+                </div>
+                {offerSteps.map((step, index) => (
+                  <div key={index} className="flex gap-2 items-start p-3 border border-[var(--border-color)] rounded-lg bg-[var(--muted)]">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs font-bold">
+                      {step.step_number}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <Input
+                        placeholder="Step title"
+                        value={step.step_title}
+                        onChange={(e) => {
+                          const newSteps = [...offerSteps];
+                          newSteps[index].step_title = e.target.value;
+                          setOfferSteps(newSteps);
+                        }}
+                      />
+                      <Input
+                        placeholder="Description (optional)"
+                        value={step.step_description || ''}
+                        onChange={(e) => {
+                          const newSteps = [...offerSteps];
+                          newSteps[index].step_description = e.target.value;
+                          setOfferSteps(newSteps);
+                        }}
+                      />
+                      <Input
+                        placeholder="Time (e.g., 2-3 days)"
+                        value={step.step_time || ''}
+                        onChange={(e) => {
+                          const newSteps = [...offerSteps];
+                          newSteps[index].step_time = e.target.value;
+                          setOfferSteps(newSteps);
+                        }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setOfferSteps(offerSteps.filter((_, i) => i !== index).map((s, i) => ({ ...s, step_number: i + 1 })))}
+                    >
+                      X
+                    </Button>
+                  </div>
+                ))}
               </div>
             </div>
             <DialogFooter>
