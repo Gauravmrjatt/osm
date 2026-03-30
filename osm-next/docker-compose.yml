@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/osm
+    volumes:
+      - osm-uploads:/app/public/uploads
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - osm-mongo:/data/db
+    restart: unless-stopped
+
+volumes:
+  osm-uploads:
+  osm-mongo:
