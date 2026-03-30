@@ -595,7 +595,7 @@ export default function AdminPage() {
                   {banners.map((banner) => (
                     <div key={banner._id} className="border border-[var(--border-color)] rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
                       <div className="relative">
-                        <img src={`/uploads/${banner.image_url}`} alt="Banner" className="w-full h-[140px] object-cover" />
+                        <img src={`/api/files/${banner.image_url}`} alt="Banner" className="w-full h-[140px] object-cover" />
                         <div className="absolute top-2 right-2">
                           {getStatusBadge(banner.status)}
                         </div>

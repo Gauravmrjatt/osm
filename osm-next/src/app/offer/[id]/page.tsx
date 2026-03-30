@@ -145,12 +145,12 @@ export default function OfferPage() {
         {offer.video_file ? (
           <div className="rounded-[var(--radius)] overflow-hidden">
             <video controls className="w-full h-auto bg-black">
-              <source src={`/uploads/${offer.video_file}`} type="video/mp4" />
+              <source src={`/api/files/${offer.video_file}`} type="video/mp4" />
             </video>
           </div>
         ) : offer.logo_image ? (
           <div className="rounded-[var(--radius)] overflow-hidden">
-            <img src={`/uploads/${offer.logo_image}`} alt={offer.title} className="w-full h-auto" />
+            <img src={`/api/files/${offer.logo_image}`} alt={offer.title} className="w-full h-auto" />
           </div>
         ) : null}
 
@@ -158,7 +158,7 @@ export default function OfferPage() {
         <div className="bg-[var(--bg-card)] rounded-[var(--radius)] p-4 flex items-center gap-3.5 border border-[var(--border)]">
           <div className="w-14 h-14 rounded-[0.875rem] bg-[var(--accent)] flex items-center justify-center text-[1.8rem] flex-shrink-0">
             {offer.logo_image ? (
-              <img src={`/uploads/${offer.logo_image}`} alt={offer.brand_name} className="w-full h-full object-cover rounded-[0.875rem]" />
+              <img src={`/api/files/${offer.logo_image}`} alt={offer.brand_name} className="w-full h-full object-cover rounded-[0.875rem]" />
             ) : (
               offer.brand_emoji
             )}

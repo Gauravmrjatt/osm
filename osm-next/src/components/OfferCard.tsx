@@ -54,7 +54,7 @@ export default function OfferCard({ offer, index }: OfferCardProps) {
               <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[var(--accent)] border border-[var(--border-color)]/50">
                 {offer.logo_image ? (
                   <img 
-                    src={`/uploads/${offer.logo_image}`} 
+                    src={`/api/files/${offer.logo_image}`} 
                     alt={offer.brand_name}
                     className="w-full h-full object-cover"
                   />

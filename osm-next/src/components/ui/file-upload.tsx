@@ -141,14 +141,14 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: Fil
           <div className="flex items-center gap-3">
             {isImage && (
               <img 
-                src={`/uploads/${preview}`} 
+                src={`/api/files/${preview}`} 
                 alt="Preview" 
                 className="w-16 h-16 object-cover rounded-lg"
               />
             )}
             {isVideo && (
               <video 
-                src={`/uploads/${preview}`} 
+                src={`/api/files/${preview}`} 
                 className="w-24 h-16 object-cover rounded-lg"
               />
             )}

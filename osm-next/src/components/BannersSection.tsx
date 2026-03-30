@@ -66,7 +66,7 @@ export default function BannersSection({ banners }: { banners: Banner[] }) {
             }}
           >
             <img 
-              src={`/uploads/${banner.image_url}`}
+              src={`/api/files/${banner.image_url}`}
               alt="Banner"
               className="w-full h-[100px] rounded-[0.875rem] object-cover"
             />

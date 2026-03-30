@@ -37,7 +37,7 @@ export default function FeaturedSection({ offers }: { offers: FeaturedOffer[] })
               <div className="w-10 h-10 rounded-xl overflow-hidden mb-2.5">
                 {offer.logo_image ? (
                   <img 
-                    src={`/uploads/${offer.logo_image}`} 
+                    src={`/api/files/${offer.logo_image}`} 
                     alt={offer.title}
                     className="w-full h-full object-cover"
                   />
