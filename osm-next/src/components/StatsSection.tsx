@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, TrendingUp, DollarSign, Shield, Zap, Headphones, Award } from 'lucide-react';
+import { CheckCircle, TrendingUp, IndianRupee, Shield, Zap, Headphones, Award } from 'lucide-react';
 import { formatNumber } from '@/lib/utils';
 
 interface Stats {
@@ -33,7 +33,7 @@ export default function StatsSection({ stats }: { stats: Stats }) {
         </div>
         <div className="bg-[var(--bg-card)] rounded-[var(--radius-sm)] p-4 text-center border border-[var(--border)]">
           <div className="w-8 h-8 mx-auto mb-1.5 bg-[rgba(30,107,255,0.15)] rounded-lg flex items-center justify-center text-[var(--primary-light)]">
-            <DollarSign className="w-4 h-4" />
+            <IndianRupee className="w-4 h-4" />
           </div>
           <div className="text-[1.1rem] font-extrabold text-[var(--text)]">
             ₹{formatNumber(stats?.max_cashback || 0)}
