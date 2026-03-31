@@ -18,7 +18,7 @@ export async function GET() {
           active_offers: {
             $sum: { $cond: [{ $gte: ['$expiry_date', now] }, 1, 0] }
           },
-          max_cashback: { $max: '$max_cashback' }
+          max_cashback: { $sum: '$max_cashback' }
         }
       }
     ]);
