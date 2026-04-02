@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { uploadVideoToCloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +39,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true, 
         filename, 
-        type: 'image' 
+        type: 'image',
+        source: 'local'
       });
     }
     
@@ -58,6 +60,23 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Invalid video format' }, { status: 400 });
       }
       
+      // Try Cloudinary first for videos
+      const cloudinaryFilename = `vid_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const cloudinaryResult = await uploadVideoToCloudinary(buffer, cloudinaryFilename);
+      
+      if (cloudinaryResult.success && cloudinaryResult.url && cloudinaryResult.publicId) {
+        return NextResponse.json({ 
+          success: true, 
+          url: cloudinaryResult.url,
+          publicId: cloudinaryResult.publicId,
+          type: 'video',
+          source: 'cloudinary'
+        });
+      }
+      
+      // Fallback to local upload if Cloudinary fails
+      console.log('Cloudinary upload failed, falling back to local storage');
+      
       const filename = `vid_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
       const filepath = path.join(uploadDir, filename);
       
@@ -66,7 +85,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true, 
         filename, 
-        type: 'video' 
+        type: 'video',
+        source: 'local'
       });
     }
     

@@ -44,6 +44,8 @@ interface Offer {
   category: string;
   logo_image: string;
   video_file: string;
+  video_source?: 'cloudinary' | 'local';
+  video_public_id?: string;
   max_cashback: number;
   cashback_rate: number;
   cashback_type: string;
@@ -93,6 +95,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [offerLogoImage, setOfferLogoImage] = useState('');
   const [offerVideoFile, setOfferVideoFile] = useState('');
+  const [offerVideoSource, setOfferVideoSource] = useState<'cloudinary' | 'local'>('local');
+  const [offerVideoPublicId, setOfferVideoPublicId] = useState('');
   const [offerSteps, setOfferSteps] = useState<OfferStep[]>([]);
   const [bannerFile, setBannerFile] = useState('');
   const [bannerLink, setBannerLink] = useState('');
@@ -208,6 +212,8 @@ export default function AdminPage() {
       ...data,
       logo_image: logoImageFilename,
       video_file: videoFileFilename,
+      video_source: offerVideoSource || editingOffer?.video_source || 'local',
+      video_public_id: offerVideoPublicId || editingOffer?.video_public_id || '',
       steps: offerSteps,
       max_cashback: Number(data.max_cashback),
       cashback_rate: Number(data.cashback_rate),
@@ -238,6 +244,8 @@ export default function AdminPage() {
         setEditingOffer(null);
         setOfferLogoImage('');
         setOfferVideoFile('');
+        setOfferVideoSource('local');
+        setOfferVideoPublicId('');
         setOfferSteps([]);
         fetchData();
       }
@@ -314,6 +322,8 @@ export default function AdminPage() {
     setEditingOffer({} as Offer);
     setOfferLogoImage('');
     setOfferVideoFile('');
+    setOfferVideoSource('local');
+    setOfferVideoPublicId('');
     setOfferSteps([]);
     setShowOfferDialog(true);
   };
@@ -322,6 +332,8 @@ export default function AdminPage() {
     setEditingOffer(offer);
     setOfferLogoImage('');
     setOfferVideoFile('');
+    setOfferVideoSource(offer.video_source || 'local');
+    setOfferVideoPublicId(offer.video_public_id || '');
     setOfferSteps(offer.steps || []);
     setShowOfferDialog(true);
   };
@@ -699,7 +711,11 @@ export default function AdminPage() {
                   accept="video/*"
                   label=""
                   value={offerVideoFile || editingOffer?.video_file || ''}
-                  onChange={(filename) => setOfferVideoFile(filename)}
+                  onChange={(filename, source, publicId) => {
+                    setOfferVideoFile(filename);
+                    if (source) setOfferVideoSource(source);
+                    if (publicId) setOfferVideoPublicId(publicId);
+                  }}
                   maxSize={50}
                 />
               </div>

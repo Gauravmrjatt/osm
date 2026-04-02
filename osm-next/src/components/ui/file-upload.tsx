@@ -9,7 +9,7 @@ interface FileUploadProps {
   accept: string
   label: string
   value?: string
-  onChange: (filename: string) => void
+  onChange: (filename: string, source?: 'cloudinary' | 'local', publicId?: string) => void
   maxSize?: number // in MB
 }
 
@@ -18,6 +18,7 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: Fil
   const [progress, setProgress] = React.useState(0)
   const [uploading, setUploading] = React.useState(false)
   const [preview, setPreview] = React.useState<string | null>(null)
+  const [fileSource, setFileSource] = React.useState<'cloudinary' | 'local' | null>(null)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
   const isVideo = accept.includes("video")
@@ -67,8 +68,21 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: Fil
         const data = await res.json()
         if (data.success) {
           setProgress(100)
-          setPreview(data.filename)
-          onChange(data.filename)
+          
+          const source = data.source || 'local'
+          const publicId = data.publicId || ''
+          
+          // For cloudinary, use the URL directly; for local, use filename
+          if (source === 'cloudinary' && data.url) {
+            setPreview(data.url)
+            onChange(data.url, source, publicId)
+          } else {
+            setPreview(data.filename)
+            onChange(data.filename, source, publicId)
+          }
+          
+          setFileSource(source)
+          
           setTimeout(() => {
             setUploading(false)
             setProgress(0)
@@ -126,6 +140,8 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: Fil
 
   const removeFile = () => {
     setPreview(null)
+    setFileSource(null)
+    setVideoPublicId('')
     onChange("")
     if (inputRef.current) {
       inputRef.current.value = ""
@@ -141,14 +157,14 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: Fil
           <div className="flex items-center gap-3">
             {isImage && (
               <img 
-                src={`/api/files/${preview}`} 
+                src={fileSource === 'cloudinary' ? preview : `/api/files/${preview}`} 
                 alt="Preview" 
                 className="w-16 h-16 object-cover rounded-lg"
               />
             )}
             {isVideo && (
               <video 
-                src={`/api/files/${preview}`} 
+                src={fileSource === 'cloudinary' ? preview : `/api/files/${preview}`} 
                 className="w-24 h-16 object-cover rounded-lg"
               />
             )}

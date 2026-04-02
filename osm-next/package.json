@@ -12,6 +12,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.9.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",
     "mongoose": "^9.3.3",

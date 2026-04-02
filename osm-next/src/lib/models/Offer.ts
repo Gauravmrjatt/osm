@@ -20,6 +20,8 @@ export interface IOffer extends Document {
   brand_emoji: string;
   logo_image?: string;
   video_file?: string;
+  video_source?: 'cloudinary' | 'local';
+  video_public_id?: string;
   category: string;
   min_order_amount: number;
   max_cashback: number;
@@ -64,6 +66,8 @@ const OfferSchema = new Schema<IOffer>({
   brand_emoji: { type: String, default: '🎁' },
   logo_image: String,
   video_file: String,
+  video_source: { type: String, enum: ['cloudinary', 'local'], default: 'local' },
+  video_public_id: String,
   category: { type: String, default: 'General' },
   min_order_amount: { type: Number, default: 0 },
   max_cashback: { type: Number, default: 0 },

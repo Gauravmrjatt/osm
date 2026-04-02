@@ -26,6 +26,7 @@ interface Offer {
   brand_emoji: string;
   logo_image?: string;
   video_file?: string;
+  video_source?: 'cloudinary' | 'local';
   category: string;
   max_cashback: number;
   cashback_rate: number;
@@ -145,7 +146,7 @@ export default function OfferPage() {
         {offer.video_file ? (
           <div className="rounded-[var(--radius)] overflow-hidden">
             <video controls className="w-full h-auto bg-black">
-              <source src={`/api/files/${offer.video_file}`} type="video/mp4" />
+              <source src={offer.video_source === 'cloudinary' ? offer.video_file : `/api/files/${offer.video_file}`} type="video/mp4" />
             </video>
           </div>
         ) : offer.logo_image ? (

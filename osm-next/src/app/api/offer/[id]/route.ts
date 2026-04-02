@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { Offer } from '@/lib/models/Offer';
+import { deleteFromCloudinary } from '@/lib/cloudinary';
 import mongoose from 'mongoose';
 
 export async function GET(
@@ -65,11 +66,18 @@ export async function DELETE(
     await connectDB();
     const { id } = await params;
     
-    const offer = await Offer.findByIdAndDelete(id);
+    const offer = await Offer.findById(id);
     
     if (!offer) {
       return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
     }
+    
+    // Delete video from Cloudinary if it's from cloudinary
+    if (offer.video_source === 'cloudinary' && offer.video_public_id) {
+      await deleteFromCloudinary(offer.video_public_id);
+    }
+    
+    await Offer.findByIdAndDelete(id);
     
     return NextResponse.json({ success: true });
   } catch (error) {
