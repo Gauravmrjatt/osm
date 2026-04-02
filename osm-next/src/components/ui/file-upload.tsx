@@ -142,7 +142,6 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10, field
   const removeFile = () => {
     setPreview(null)
     setFileSource(null)
-    setVideoPublicId('')
     onChange("")
     if (inputRef.current) {
       inputRef.current.value = ""
