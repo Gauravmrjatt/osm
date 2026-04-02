@@ -914,6 +914,7 @@ export default function AdminPage() {
                   label=""
                   value={bannerFile}
                   onChange={(filename) => setBannerFile(filename)}
+                  fieldName="banner_image"
                 />
               </div>
               <div className="space-y-2">

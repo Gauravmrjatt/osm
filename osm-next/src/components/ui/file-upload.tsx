@@ -11,9 +11,10 @@ interface FileUploadProps {
   value?: string
   onChange: (filename: string, source?: 'cloudinary' | 'local', publicId?: string) => void
   maxSize?: number // in MB
+  fieldName?: 'logo_image' | 'banner_image' | 'video_file'
 }
 
-export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: FileUploadProps) {
+export function FileUpload({ accept, label, value, onChange, maxSize = 10, fieldName = 'logo_image' }: FileUploadProps) {
   const [dragActive, setDragActive] = React.useState(false)
   const [progress, setProgress] = React.useState(0)
   const [uploading, setUploading] = React.useState(false)
@@ -37,8 +38,8 @@ export function FileUpload({ accept, label, value, onChange, maxSize = 10 }: Fil
     setProgress(0)
 
     const formData = new FormData()
-    if (isImage) {
-      formData.append("logo_image", file)
+    if (isImage && fieldName === 'banner_image') {
+      formData.append("banner_image", file)
     } else if (isVideo) {
       formData.append("video_file", file)
     } else {
